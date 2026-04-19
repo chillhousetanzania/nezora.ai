@@ -1,0 +1,148 @@
+export interface Employee {
+  initials: string
+  name: string
+  role: string
+  title: string
+  desc: string
+  tools: string[]
+  floorLabel: string
+  floorNum: string
+}
+
+export const EMPLOYEES: Employee[] = [
+  {
+    initials: 'AC',
+    name: 'Ava Chen',
+    role: 'CEO',
+    title: 'chief strategist',
+    desc: 'Sets vision, prioritises the roadmap, and makes the final call on anything that matters. Runs weekly company syncs.',
+    tools: ['Notion', 'Calendar', 'Gmail'],
+    floorLabel: 'CEO_SUITE',
+    floorNum: '12',
+  },
+  {
+    initials: 'MW',
+    name: 'Marcus Webb',
+    role: 'CMO',
+    title: 'head of marketing',
+    desc: 'Owns brand, campaigns, and growth loops. Writes copy, runs A/B tests, and reports weekly on acquisition metrics.',
+    tools: ['Canva', 'Mailchimp', 'Analytics'],
+    floorLabel: 'MARKETING',
+    floorNum: '11',
+  },
+  {
+    initials: 'DK',
+    name: 'Dev Kapoor',
+    role: 'Engineering',
+    title: 'head of engineering',
+    desc: 'Leads technical architecture, reviews PRs, manages sprints, and keeps the product ship-shape and on schedule.',
+    tools: ['GitHub', 'Linear', 'Slack'],
+    floorLabel: 'ENGINEERING',
+    floorNum: '10',
+  },
+  {
+    initials: 'ZF',
+    name: 'Zara Font',
+    role: 'Design',
+    title: 'head of design',
+    desc: 'Drives product aesthetics, creates UI components, maintains the design system, and reviews every pixel before launch.',
+    tools: ['Figma', 'Framer', 'Lottie'],
+    floorLabel: 'DESIGN',
+    floorNum: '09',
+  },
+  {
+    initials: 'LP',
+    name: 'Lena Park',
+    role: 'Product',
+    title: 'head of product',
+    desc: 'Manages the roadmap, writes specs, runs user interviews, and ensures the team is building the right thing.',
+    tools: ['Notion', 'Mixpanel', 'Linear'],
+    floorLabel: 'PRODUCT',
+    floorNum: '08',
+  },
+  {
+    initials: 'RS',
+    name: 'Rio Santos',
+    role: 'Content',
+    title: 'content & video lead',
+    desc: 'Produces reels, posts, scripts, and editorial content. Connects to social channels and publishes on schedule.',
+    tools: ['TikTok', 'Instagram', 'CapCut'],
+    floorLabel: 'CONTENT',
+    floorNum: '07',
+  },
+  {
+    initials: 'KO',
+    name: 'Kai Osei',
+    role: 'Sales',
+    title: 'head of sales',
+    desc: 'Runs outbound, manages the pipeline, handles demos, and closes deals. Tracks everything in CRM.',
+    tools: ['HubSpot', 'Apollo', 'Zoom'],
+    floorLabel: 'SALES',
+    floorNum: '06',
+  },
+  {
+    initials: 'NS',
+    name: 'Nina Sorel',
+    role: 'Support',
+    title: 'support lead',
+    desc: 'Responds to customer queries, triages issues, writes help docs, and keeps the satisfaction score in the green.',
+    tools: ['Intercom', 'Notion', 'Slack'],
+    floorLabel: 'SUPPORT',
+    floorNum: '05',
+  },
+  {
+    initials: 'ON',
+    name: 'Omar Nazari',
+    role: 'CFO',
+    title: 'chief finance officer',
+    desc: 'Manages bookkeeping, runway, invoicing, payroll, and monthly P&L. Alerts you before you overspend.',
+    tools: ['Stripe', 'QuickBooks', 'Mercury'],
+    floorLabel: 'FINANCE',
+    floorNum: '04',
+  },
+  {
+    initials: 'PM',
+    name: 'Priya Mehta',
+    role: 'Data',
+    title: 'data analyst',
+    desc: 'Pulls insights from your metrics, builds dashboards, spots trends early, and presents findings in plain language.',
+    tools: ['Mixpanel', 'BigQuery', 'Looker'],
+    floorLabel: 'ANALYTICS',
+    floorNum: '03',
+  },
+  {
+    initials: 'SL',
+    name: 'Sam Levi',
+    role: 'Legal',
+    title: 'legal counsel',
+    desc: 'Reviews contracts, drafts NDAs, handles compliance, and flags anything that could be a liability.',
+    tools: ['DocuSign', 'Notion', 'Gmail'],
+    floorLabel: 'LEGAL',
+    floorNum: '02',
+  },
+  {
+    initials: 'CM',
+    name: 'Cleo Marsh',
+    role: 'HR & Ops',
+    title: 'people & operations',
+    desc: 'Manages hiring pipelines, onboarding flows, and keeps all internal processes documented and running smoothly.',
+    tools: ['Notion', 'Calendly', 'Slack'],
+    floorLabel: 'HR_OPS',
+    floorNum: '01',
+  },
+]
+
+export const OB_HIRE_ORDER = [
+  { initials: 'AC', name: 'Ava Chen', title: 'CEO' },
+  { initials: 'MW', name: 'Marcus Webb', title: 'CMO' },
+  { initials: 'DK', name: 'Dev Kapoor', title: 'Engineering' },
+  { initials: 'ZF', name: 'Zara Font', title: 'Design' },
+  { initials: 'LP', name: 'Lena Park', title: 'Product' },
+  { initials: 'RS', name: 'Rio Santos', title: 'Content' },
+  { initials: 'KO', name: 'Kai Osei', title: 'Sales' },
+  { initials: 'NS', name: 'Nina Sorel', title: 'Support' },
+  { initials: 'ON', name: 'Omar Nazari', title: 'CFO' },
+  { initials: 'PM', name: 'Priya Mehta', title: 'Data' },
+  { initials: 'SL', name: 'Sam Levi', title: 'Legal' },
+  { initials: 'CM', name: 'Cleo Marsh', title: 'HR & Ops' },
+]
