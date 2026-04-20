@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Zap, Send, BarChart3, Rocket, Settings, LayoutGrid, Link2, TrendingUp, TrendingDown, ChevronRight, Users, Activity, Briefcase, Package } from 'lucide-react'
 import { EMPLOYEES } from '../data/employees'
 
 const KPI_DATA = [
@@ -49,6 +51,15 @@ const AGENT_REPLIES: Record<string, string[]> = {
   'HR & Ops': ['All internal processes documented in Notion this week.', 'Onboarding checklist updated. Ready for next hire.', 'Team retrospective notes sent — 3 action items logged.'],
 }
 
+const NAV_ITEMS = [
+  { label: 'Overview', icon: LayoutGrid },
+  { label: 'Missions', icon: Rocket },
+  { label: 'Outputs', icon: Package },
+  { label: 'Integrations', icon: Link2 },
+  { label: 'Analytics', icon: BarChart3 },
+  { label: 'Settings', icon: Settings },
+]
+
 function Sparkline({ data }: { data: number[] }) {
   const max = Math.max(...data)
   const min = Math.min(...data)
@@ -60,9 +71,23 @@ function Sparkline({ data }: { data: number[] }) {
     return `${x},${y}`
   }).join(' ')
   return (
-    <svg width={w} height={h} style={{ overflow: 'visible' }}>
-      <polyline points={pts} fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinejoin="round" />
+    <svg width={w} height={h} className="overflow-visible">
+      <polyline points={pts} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" className="text-primary-400" />
     </svg>
+  )
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const config: Record<string, { bg: string; text: string }> = {
+    running: { bg: 'bg-success-50 border-success-500/20', text: 'text-success-600' },
+    review: { bg: 'bg-warning-50 border-warning-500/20', text: 'text-warning-600' },
+    queued: { bg: 'bg-neutral-100 border-neutral-200', text: 'text-neutral-500' },
+  }
+  const c = config[status] || config.queued
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider border ${c.bg} ${c.text}`}>
+      {status}
+    </span>
   )
 }
 
@@ -86,7 +111,7 @@ export default function HQPage() {
   }, [messages, typing])
 
   useEffect(() => {
-    const t = setTimeout(() => setIntroOpen(false), 2400)
+    const t = setTimeout(() => setIntroOpen(false), 2000)
     return () => clearTimeout(t)
   }, [])
 
@@ -109,112 +134,164 @@ export default function HQPage() {
   }
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg)', color: 'var(--text)', overflow: 'hidden', position: 'relative' }}>
+    <div className="h-screen flex flex-col bg-neutral-50 text-neutral-900 overflow-hidden relative">
 
       {/* Intro overlay */}
-      {introOpen && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'var(--bg)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, transition: 'opacity 0.4s', opacity: introOpen ? 1 : 0 }}>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 18, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text)' }}>nezora<span style={{ color: 'var(--accent)' }}>.ai</span></div>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: 'var(--muted)', letterSpacing: '0.08em' }}>welcome, founder · booting HQ<span className="cursor" /></div>
-          <div style={{ width: 100, height: 2, background: 'var(--line-2)', borderRadius: 1, overflow: 'hidden', marginTop: 4 }}>
-            <div style={{ height: '100%', background: 'var(--accent)', animation: 'fill 2s cubic-bezier(0.4,0,0.2,1) forwards' }} />
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {introOpen && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="fixed inset-0 z-[1000] bg-white flex flex-col items-center justify-center gap-4"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center shadow-soft-md">
+              <Zap className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="font-heading text-xl font-semibold text-neutral-800 tracking-tight">Welcome to HQ</h2>
+            <p className="text-sm text-neutral-500">Loading your company dashboard...</p>
+            <div className="w-24 h-1 bg-neutral-200 rounded-full overflow-hidden mt-2">
+              <motion.div
+                initial={{ width: '0%' }}
+                animate={{ width: '100%' }}
+                transition={{ duration: 1.8, ease: 'easeInOut' }}
+                className="h-full bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Top bar */}
-      <div style={{ height: 52, borderBottom: '1px solid var(--line)', display: 'flex', alignItems: 'center', padding: '0 20px', gap: 16, flexShrink: 0, background: 'var(--bg-2)' }}>
-        <Link to="/" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 13, fontWeight: 600, color: 'var(--text)', textDecoration: 'none', letterSpacing: '0.04em' }}>
-          nezora<span style={{ color: 'var(--accent)' }}>.ai</span>
+      <div className="h-14 border-b border-neutral-200/60 flex items-center px-5 gap-4 flex-shrink-0 bg-white/80 backdrop-blur-xl">
+        <Link to="/" className="flex items-center gap-2 no-underline">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center shadow-soft-sm">
+            <Zap className="w-4 h-4 text-white" />
+          </div>
+          <span className="font-heading font-semibold text-base text-neutral-800 tracking-tight">Nezora</span>
         </Link>
-        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.06em' }}>/hq</span>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--accent)', letterSpacing: '0.06em' }}>
-            <span style={{ width: 6, height: 6, background: 'var(--accent)', borderRadius: '50%', animation: 'pulse 2s ease-in-out infinite' }} />
-            all systems on
+        <span className="text-xs text-neutral-400 font-medium">/hq</span>
+        <div className="ml-auto flex gap-3 items-center">
+          <span className="flex items-center gap-2 text-xs font-medium text-success-600">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-success-500" />
+            </span>
+            All systems on
           </span>
-          <Link to="/org" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--muted)', textDecoration: 'none', padding: '4px 10px', border: '1px solid var(--line)', borderRadius: 5, letterSpacing: '0.06em', transition: 'color 0.15s, border-color 0.15s' }}>org chart →</Link>
-          <Link to="/" style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--muted)', textDecoration: 'none', padding: '4px 10px', border: '1px solid var(--line)', borderRadius: 5, letterSpacing: '0.06em' }}>← site</Link>
+          <Link to="/org" className="text-xs text-neutral-500 no-underline px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors font-medium">
+            Org Chart →
+          </Link>
+          <Link to="/" className="text-xs text-neutral-500 no-underline px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors font-medium">
+            ← Site
+          </Link>
         </div>
       </div>
 
       {/* 3-column body */}
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '240px 1fr 320px', overflow: 'hidden' }}>
+      <div className="flex-1 grid grid-cols-[240px_1fr_320px] overflow-hidden">
 
         {/* Sidebar */}
-        <div style={{ borderRight: '1px solid var(--line)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div className="border-r border-neutral-200/60 flex flex-col overflow-hidden bg-white">
           {/* Company card */}
-          <div style={{ padding: '16px', borderBottom: '1px solid var(--line)', background: 'var(--bg-2)' }}>
-            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.08em', marginBottom: 6 }}>// your company</div>
-            <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', letterSpacing: '-0.02em', marginBottom: 8 }}>Founder HQ</div>
-            <div style={{ display: 'flex', gap: 12 }}>
+          <div className="p-4 border-b border-neutral-100">
+            <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest mb-1">Your Company</p>
+            <h3 className="text-base font-semibold text-neutral-800 mb-3">Founder HQ</h3>
+            <div className="flex gap-5">
               <div>
-                <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--accent)', letterSpacing: '-0.02em' }}>$4.3K</div>
-                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.06em' }}>MRR</div>
+                <div className="text-lg font-bold text-primary-500 leading-tight">$4.3K</div>
+                <div className="text-[10px] text-neutral-400 font-medium uppercase">MRR</div>
               </div>
               <div>
-                <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)', letterSpacing: '-0.02em' }}>1,847</div>
-                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.06em' }}>subs</div>
+                <div className="text-lg font-bold text-neutral-800 leading-tight">1,847</div>
+                <div className="text-[10px] text-neutral-400 font-medium uppercase">Subs</div>
               </div>
               <div>
-                <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--accent-2)', letterSpacing: '-0.02em' }}>+8%</div>
-                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.06em' }}>7d</div>
+                <div className="text-lg font-bold text-success-500 leading-tight">+8%</div>
+                <div className="text-[10px] text-neutral-400 font-medium uppercase">7d</div>
               </div>
             </div>
           </div>
 
           {/* Nav */}
-          <div style={{ padding: '12px 8px', borderBottom: '1px solid var(--line)' }}>
-            {['Overview', 'Missions', 'Outputs', 'Integrations', 'Analytics', 'Settings'].map((item, i) => (
-              <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 6, marginBottom: 2, color: i === 0 ? 'var(--accent)' : 'var(--text-2)', background: i === 0 ? 'rgba(165,242,106,0.08)' : 'transparent', cursor: 'pointer', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.04em' }}>
-                {item}
-              </div>
-            ))}
+          <div className="p-2 border-b border-neutral-100">
+            {NAV_ITEMS.map((item, i) => {
+              const Icon = item.icon
+              return (
+                <div
+                  key={item.label}
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg mb-0.5 cursor-pointer text-sm font-medium transition-colors ${
+                    i === 0
+                      ? 'bg-primary-50 text-primary-600'
+                      : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {item.label}
+                </div>
+              )
+            })}
           </div>
 
           {/* Team roster */}
-          <div style={{ flex: 1, overflow: 'auto', padding: '12px 8px' }}>
-            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8, padding: '0 4px' }}>team · 12 online</div>
-            {EMPLOYEES.map((emp, i) => (
+          <div className="flex-1 overflow-auto p-2">
+            <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest mb-2 px-2">Team · 12 online</p>
+            {EMPLOYEES.map((e, i) => (
               <div
-                key={emp.initials}
+                key={e.initials}
                 onClick={() => setActiveAgent(i)}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px', borderRadius: 6, marginBottom: 2, cursor: 'pointer', background: activeAgent === i ? 'var(--bg-3)' : 'transparent', border: `1px solid ${activeAgent === i ? 'var(--line-2)' : 'transparent'}`, transition: 'background 0.12s' }}
+                className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer transition-all mb-0.5 ${
+                  activeAgent === i
+                    ? 'bg-neutral-100 border border-neutral-200/50'
+                    : 'border border-transparent hover:bg-neutral-50'
+                }`}
               >
-                <div style={{ width: 28, height: 28, borderRadius: 7, background: 'var(--bg-3)', border: `1px solid ${activeAgent === i ? 'var(--accent)' : 'var(--line-2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'JetBrains Mono, monospace', fontSize: 9, fontWeight: 600, color: activeAgent === i ? 'var(--accent)' : 'var(--text-2)', flexShrink: 0 }}>
-                  {emp.initials}
+                <div className={`w-8 h-8 flex-shrink-0 rounded-lg flex items-center justify-center text-xs font-bold transition-colors ${
+                  activeAgent === i
+                    ? 'bg-primary-100 text-primary-600 border border-primary-200'
+                    : 'bg-neutral-100 text-neutral-500 border border-neutral-200/50'
+                }`}>
+                  {e.initials}
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{emp.role}</div>
-                  <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.04em' }}>{emp.name.split(' ')[0]}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-neutral-700 truncate">{e.role}</div>
+                  <div className="text-[11px] text-neutral-400 truncate">{e.name.split(' ')[0]}</div>
                 </div>
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0, animation: 'pulse 2s ease-in-out infinite' }} />
+                <div className="w-2 h-2 rounded-full bg-success-400 flex-shrink-0" />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Main */}
-        <div style={{ overflow: 'auto', padding: '24px' }}>
-          <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        {/* Main content */}
+        <div className="overflow-auto p-6 bg-neutral-50">
+          {/* Header */}
+          <div className="flex justify-between items-start mb-6">
             <div>
-              <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>// week overview</div>
-              <h1 style={{ fontSize: 22, fontWeight: 500, color: 'var(--text)', letterSpacing: '-0.02em' }}>Your company is running.</h1>
+              <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest mb-1">Week Overview</p>
+              <h1 className="text-2xl font-heading font-semibold text-neutral-800 tracking-tight">Your company is running.</h1>
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'var(--text-2)', background: 'var(--bg-3)', border: '1px solid var(--line-2)', padding: '7px 14px', borderRadius: 6, cursor: 'pointer', letterSpacing: '0.04em' }}>New mission</button>
-              <button style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: '#0A0B0D', background: 'var(--accent)', border: 'none', padding: '7px 14px', borderRadius: 6, cursor: 'pointer', fontWeight: 600, letterSpacing: '0.04em' }}>Brief team →</button>
+            <div className="flex gap-2">
+              <button className="text-sm text-neutral-600 bg-white border border-neutral-200 px-4 py-2 rounded-xl hover:bg-neutral-50 transition-colors font-medium shadow-soft-xs">
+                New mission
+              </button>
+              <button className="text-sm text-white bg-gradient-to-r from-primary-500 to-secondary-500 px-4 py-2 rounded-xl font-semibold hover:shadow-glow-primary transition-all shadow-soft-sm">
+                Brief team →
+              </button>
             </div>
           </div>
 
           {/* KPI cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2, marginBottom: 24 }}>
+          <div className="grid grid-cols-4 gap-3 mb-6">
             {KPI_DATA.map(kpi => (
-              <div key={kpi.label} style={{ background: 'var(--bg-2)', border: '1px solid var(--line)', borderRadius: 8, padding: '16px' }}>
-                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.08em', marginBottom: 8 }}>{kpi.label}</div>
-                <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)', letterSpacing: '-0.02em', marginBottom: 4 }}>{kpi.value}</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: kpi.up ? 'var(--accent)' : 'var(--warn)', letterSpacing: '0.04em' }}>{kpi.delta}</span>
+              <div key={kpi.label} className="bg-white rounded-2xl border border-neutral-200/50 p-4 shadow-soft-xs hover:shadow-soft-sm transition-shadow">
+                <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-2">{kpi.label}</p>
+                <div className="text-2xl font-bold text-neutral-800 tracking-tight mb-1">{kpi.value}</div>
+                <div className="flex justify-between items-end">
+                  <div className={`flex items-center gap-1 text-xs font-semibold ${kpi.up ? 'text-success-500' : 'text-error-500'}`}>
+                    {kpi.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                    {kpi.delta}
+                  </div>
                   <Sparkline data={kpi.spark} />
                 </div>
               </div>
@@ -222,49 +299,67 @@ export default function HQPage() {
           </div>
 
           {/* Activity + Missions */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, marginBottom: 24 }}>
+          <div className="grid grid-cols-2 gap-3 mb-6">
             {/* Activity */}
-            <div style={{ background: 'var(--bg-2)', border: '1px solid var(--line)', borderRadius: 8, padding: '16px' }}>
-              <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.08em', marginBottom: 14, textTransform: 'uppercase' }}>// overnight activity</div>
-              {ACTIVITY.map(a => (
-                <div key={a.time + a.agent} style={{ display: 'flex', gap: 10, paddingBottom: 10, marginBottom: 10, borderBottom: '1px solid var(--line)' }}>
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--muted)', flexShrink: 0 }}>{a.time}</span>
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--accent)', flexShrink: 0, fontWeight: 500 }}>[{a.agent}]</span>
-                  <span style={{ fontSize: 12, color: 'var(--text-2)', lineHeight: 1.5 }}>{a.msg}</span>
-                </div>
-              ))}
+            <div className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs">
+              <div className="flex items-center gap-2 mb-4">
+                <Activity className="w-4 h-4 text-primary-500" />
+                <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Overnight Activity</h3>
+              </div>
+              <div className="space-y-3">
+                {ACTIVITY.map(a => (
+                  <div key={a.time + a.agent} className="flex gap-3 pb-3 border-b border-neutral-100 last:border-0 last:pb-0">
+                    <span className="text-[11px] text-neutral-400 font-mono flex-shrink-0 pt-0.5">{a.time}</span>
+                    <span className="text-[11px] text-primary-500 font-semibold flex-shrink-0 pt-0.5">{a.agent}</span>
+                    <span className="text-sm text-neutral-600 leading-relaxed">{a.msg}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Missions */}
-            <div style={{ background: 'var(--bg-2)', border: '1px solid var(--line)', borderRadius: 8, padding: '16px' }}>
-              <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.08em', marginBottom: 14, textTransform: 'uppercase' }}>// missions in flight</div>
-              {MISSIONS.map(m => (
-                <div key={m.title} style={{ marginBottom: 16 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <span style={{ fontSize: 13, color: 'var(--text)', fontWeight: 500 }}>{m.title}</span>
-                    <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: m.status === 'running' ? 'var(--accent)' : m.status === 'review' ? 'var(--accent-2)' : 'var(--muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{m.status}</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <div style={{ flex: 1, height: 3, background: 'var(--line-2)', borderRadius: 2, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${m.progress}%`, background: m.status === 'queued' ? 'var(--muted)' : 'var(--accent)', borderRadius: 2, transition: 'width 0.6s ease' }} />
+            <div className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs">
+              <div className="flex items-center gap-2 mb-4">
+                <Rocket className="w-4 h-4 text-secondary-500" />
+                <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Missions in Flight</h3>
+              </div>
+              <div className="space-y-4">
+                {MISSIONS.map(m => (
+                  <div key={m.title}>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium text-neutral-700">{m.title}</span>
+                      <StatusBadge status={m.status} />
                     </div>
-                    <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.04em', flexShrink: 0 }}>{m.progress}%</span>
-                    <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: 'var(--muted)' }}>{m.owner}</span>
+                    <div className="flex gap-2 items-center">
+                      <div className="flex-1 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-700 ${
+                            m.status === 'queued' ? 'bg-neutral-300' : 'bg-gradient-to-r from-primary-400 to-secondary-400'
+                          }`}
+                          style={{ width: `${m.progress}%` }}
+                        />
+                      </div>
+                      <span className="text-[11px] text-neutral-400 font-medium w-8 text-right">{m.progress}%</span>
+                      <span className="text-[11px] text-neutral-400">{m.owner}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Shipped */}
-          <div style={{ background: 'var(--bg-2)', border: '1px solid var(--line)', borderRadius: 8, padding: '16px' }}>
-            <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.08em', marginBottom: 14, textTransform: 'uppercase' }}>// shipped overnight</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8 }}>
+          <div className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs">
+            <div className="flex items-center gap-2 mb-4">
+              <Package className="w-4 h-4 text-success-500" />
+              <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Shipped Overnight</h3>
+            </div>
+            <div className="grid grid-cols-6 gap-3">
               {SHIPPED.map(s => (
-                <div key={s.label} style={{ background: 'var(--bg-3)', border: '1px solid var(--line)', borderRadius: 8, padding: '12px 10px', textAlign: 'center', cursor: 'default' }}>
-                  <div style={{ fontSize: 20, marginBottom: 6 }}>{s.icon}</div>
-                  <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--text)', marginBottom: 2 }}>{s.label}</div>
-                  <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: 'var(--muted)', letterSpacing: '0.04em' }}>{s.sub}</div>
+                <div key={s.label} className="bg-neutral-50 rounded-xl border border-neutral-100 p-3 text-center hover:bg-white hover:shadow-soft-xs hover:border-neutral-200 transition-all cursor-default">
+                  <div className="text-xl mb-2">{s.icon}</div>
+                  <div className="text-xs font-semibold text-neutral-700 mb-0.5">{s.label}</div>
+                  <div className="text-[10px] text-neutral-400">{s.sub}</div>
                 </div>
               ))}
             </div>
@@ -272,47 +367,61 @@ export default function HQPage() {
         </div>
 
         {/* Chat rail */}
-        <div style={{ borderLeft: '1px solid var(--line)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div className="border-l border-neutral-200/60 flex flex-col overflow-hidden bg-white">
           {/* Agent header */}
-          <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--line)', background: 'var(--bg-2)', flexShrink: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 9, background: 'var(--bg-3)', border: '1px solid var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, fontWeight: 600, color: 'var(--accent)' }}>
+          <div className="p-4 border-b border-neutral-100 flex-shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary-50 border border-primary-200 flex items-center justify-center text-sm font-bold text-primary-600">
                 {emp.initials}
               </div>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--text)', letterSpacing: '-0.01em' }}>{emp.role}</div>
-                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--accent)', letterSpacing: '0.04em' }}>{emp.title}</div>
+              <div className="flex-1">
+                <div className="text-sm font-semibold text-neutral-800">{emp.role}</div>
+                <div className="text-xs text-neutral-400">{emp.title}</div>
               </div>
-              <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
-                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: 'var(--accent)', background: 'rgba(165,242,106,0.1)', border: '1px solid rgba(165,242,106,0.2)', padding: '3px 7px', borderRadius: 4, letterSpacing: '0.06em' }}>online</span>
-              </div>
+              <span className="flex items-center gap-1.5 text-[10px] font-semibold text-success-600 bg-success-50 border border-success-500/20 px-2 py-1 rounded-md uppercase tracking-wider">
+                <span className="w-1.5 h-1.5 rounded-full bg-success-500" />
+                Online
+              </span>
             </div>
           </div>
 
           {/* Chat tabs */}
-          <div style={{ display: 'flex', borderBottom: '1px solid var(--line)', flexShrink: 0 }}>
-            {['chat', 'brief', 'logs'].map((tab, i) => (
-              <div key={tab} style={{ flex: 1, padding: '8px', textAlign: 'center', fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.06em', color: i === 0 ? 'var(--accent)' : 'var(--muted)', borderBottom: i === 0 ? '2px solid var(--accent)' : '2px solid transparent', cursor: 'pointer' }}>
+          <div className="flex border-b border-neutral-100 flex-shrink-0">
+            {['Chat', 'Brief', 'Logs'].map((tab, i) => (
+              <div key={tab} className={`flex-1 py-2.5 text-center text-xs font-semibold uppercase tracking-wider cursor-pointer transition-colors ${
+                i === 0
+                  ? 'text-primary-500 border-b-2 border-primary-500'
+                  : 'text-neutral-400 border-b-2 border-transparent hover:text-neutral-600'
+              }`}>
                 {tab}
               </div>
             ))}
           </div>
 
           {/* Messages */}
-          <div ref={chatRef} style={{ flex: 1, overflow: 'auto', padding: '14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div ref={chatRef} className="flex-1 overflow-auto p-4 flex flex-col gap-3">
             {messages.map((msg, i) => (
-              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: msg.from === 'user' ? 'flex-end' : 'flex-start' }}>
-                <div style={{ maxWidth: '85%', padding: '10px 12px', borderRadius: msg.from === 'user' ? '10px 10px 2px 10px' : '10px 10px 10px 2px', background: msg.from === 'user' ? 'var(--accent)' : 'var(--bg-3)', color: msg.from === 'user' ? '#0A0B0D' : 'var(--text)', fontSize: 13, lineHeight: 1.5, border: msg.from === 'agent' ? '1px solid var(--line-2)' : 'none' }}>
+              <div key={i} className={`flex flex-col ${msg.from === 'user' ? 'items-end' : 'items-start'}`}>
+                <div className={`max-w-[85%] px-3.5 py-2.5 text-sm leading-relaxed ${
+                  msg.from === 'user'
+                    ? 'bg-neutral-900 text-white rounded-2xl rounded-br-sm'
+                    : 'bg-neutral-100 text-neutral-700 rounded-2xl rounded-bl-sm border border-neutral-200/50'
+                }`}>
                   {msg.text}
                 </div>
-                <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 9, color: 'var(--muted)', marginTop: 3, letterSpacing: '0.04em' }}>{msg.time}</span>
+                <span className="text-[10px] text-neutral-400 mt-1 px-1">{msg.time}</span>
               </div>
             ))}
             {typing && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <div style={{ padding: '8px 12px', background: 'var(--bg-3)', border: '1px solid var(--line-2)', borderRadius: '10px 10px 10px 2px', display: 'flex', gap: 4, alignItems: 'center' }}>
+              <div className="flex items-center gap-1.5">
+                <div className="px-3.5 py-3 bg-neutral-100 rounded-2xl rounded-bl-sm border border-neutral-200/50 flex gap-1 items-center">
                   {[0, 1, 2].map(d => (
-                    <div key={d} className="typing-dot" style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--muted)' }} />
+                    <motion.div
+                      key={d}
+                      animate={{ opacity: [0.3, 1, 0.3] }}
+                      transition={{ duration: 1.2, repeat: Infinity, delay: d * 0.2 }}
+                      className="w-1.5 h-1.5 rounded-full bg-neutral-400"
+                    />
                   ))}
                 </div>
               </div>
@@ -320,16 +429,21 @@ export default function HQPage() {
           </div>
 
           {/* Input */}
-          <div style={{ padding: '12px', borderTop: '1px solid var(--line)', flexShrink: 0 }}>
-            <div style={{ display: 'flex', gap: 8 }}>
+          <div className="p-3 border-t border-neutral-100 flex-shrink-0">
+            <div className="flex gap-2">
               <input
-                style={{ flex: 1, background: 'var(--bg-3)', border: '1px solid var(--line-2)', borderRadius: 7, padding: '9px 12px', fontSize: 13, color: 'var(--text)', fontFamily: 'Space Grotesk, sans-serif', outline: 'none' }}
+                className="flex-1 bg-neutral-50 border border-neutral-200/50 rounded-xl px-3.5 py-2.5 text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                 placeholder={`Message ${emp.role}...`}
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') send() }}
               />
-              <button onClick={send} style={{ background: 'var(--accent)', border: 'none', borderRadius: 7, padding: '9px 14px', color: '#0A0B0D', fontFamily: 'JetBrains Mono, monospace', fontSize: 12, fontWeight: 600, cursor: 'pointer', letterSpacing: '0.04em' }}>→</button>
+              <button
+                onClick={send}
+                className="w-10 h-10 flex items-center justify-center rounded-xl bg-neutral-900 text-white hover:bg-neutral-800 transition-colors shadow-soft-sm active:scale-95"
+              >
+                <Send className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>

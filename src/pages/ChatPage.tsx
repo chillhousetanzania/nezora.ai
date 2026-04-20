@@ -1,23 +1,26 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Paperclip, MoreVertical, Phone, Video, ArrowLeft } from 'lucide-react';
+import { MoreVertical, Phone, Video, ArrowLeft } from 'lucide-react';
 import { agents, getAgentById } from '../data/agents';
 import { getResponse, MockMessage } from '../data/mockResponses';
+
+// Import our new Chat components
+import { MessageBubble } from '../components/chat/MessageBubble';
+import { TypingIndicator } from '../components/chat/TypingIndicator';
+import { AgentListSidebar } from '../components/chat/AgentListSidebar';
+import { ChatInputArea } from '../components/chat/ChatInputArea';
 
 export default function ChatPage() {
   const { agentId } = useParams();
   const navigate = useNavigate();
   const [selectedAgent, setSelectedAgent] = useState(agentId || agents[0].id);
   const [messages, setMessages] = useState<Record<string, MockMessage[]>>({});
-  const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const agent = getAgentById(selectedAgent);
 
-  // Initialize messages for agent if not exists
   useEffect(() => {
     if (!messages[selectedAgent]) {
       const agentData = getAgentById(selectedAgent);
@@ -57,13 +60,13 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, selectedAgent, isTyping]);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
+  const sendMessage = async (inputText: string) => {
+    if (!inputText.trim()) return;
 
     const userMsg: MockMessage = {
       id: Date.now().toString(),
       sender: 'user',
-      text: input.trim(),
+      text: inputText.trim(),
       time: 'Just now',
     };
 
@@ -71,10 +74,8 @@ export default function ChatPage() {
       ...prev,
       [selectedAgent]: [...(prev[selectedAgent] || []), userMsg]
     }));
-    setInput('');
     setIsTyping(true);
 
-    // Simulate agent thinking
     const thinkTime = 1200 + Math.random() * 1500;
     await new Promise(resolve => setTimeout(resolve, thinkTime));
 
@@ -92,134 +93,86 @@ export default function ChatPage() {
     }));
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
   const selectAgent = (id: string) => {
     setSelectedAgent(id);
     navigate(`/chat/${id}`, { replace: true });
-    setTimeout(() => inputRef.current?.focus(), 100);
   };
 
   const currentMessages = messages[selectedAgent] || [];
 
   return (
-    <div className="flex h-[calc(100vh-7rem)] gap-4 max-w-7xl mx-auto">
-      {/* Agent List */}
-      <div className="w-72 shrink-0 glass rounded-2xl overflow-hidden flex flex-col hidden md:flex">
-        <div className="p-4 border-b border-white/5">
-          <h2 className="font-heading font-semibold text-sm">Conversations</h2>
-        </div>
-        <div className="flex-1 overflow-y-auto">
-          {agents.map((a) => {
-            const lastMsg = messages[a.id]?.[messages[a.id].length - 1];
-            return (
-              <button
-                key={a.id}
-                onClick={() => selectAgent(a.id)}
-                className={`w-full p-3 text-left flex items-center gap-3 transition-all duration-200 ${
-                  selectedAgent === a.id
-                    ? 'bg-neon-purple/10 border-l-2 border-neon-purple'
-                    : 'hover:bg-white/5 border-l-2 border-transparent'
-                }`}
-              >
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
-                  style={{ backgroundColor: `${a.color}20` }}
-                >
-                  {a.emoji}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{a.name}</span>
-                    <div className={`w-2 h-2 rounded-full ${
-                      a.status === 'online' ? 'bg-neon-green' :
-                      a.status === 'busy' ? 'bg-yellow-400' : 'bg-neon-blue'
-                    }`} />
-                  </div>
-                  <p className="text-xs text-slate-500 truncate mt-0.5">
-                    {lastMsg?.text?.substring(0, 40) || a.role}
-                    {lastMsg?.text && lastMsg.text.length > 40 ? '...' : ''}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+    <div className="flex h-[calc(100vh-7rem)] max-w-7xl mx-auto rounded-2xl shadow-soft-md border border-neutral-200/10 dark:border-neutral-700/10 overflow-hidden bg-white dark:bg-neutral-800">
+      {/* ── Agent List Sidebar ────────────────────── */}
+      <AgentListSidebar
+        agents={agents as any}
+        selectedAgentId={selectedAgent}
+        onSelectAgent={selectAgent}
+        className="hidden md:flex"
+      />
 
-      {/* Chat Area */}
-      <div className="flex-1 glass rounded-2xl flex flex-col overflow-hidden">
+      {/* ── Chat Area ────────────────────────────── */}
+      <div className="flex-1 flex flex-col min-w-0 bg-white dark:bg-neutral-800 relative">
         {/* Agent Header */}
-        {agent && (
-          <div className="p-4 border-b border-white/5 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button onClick={() => navigate('/chat')} className="md:hidden p-1 hover:bg-white/5 rounded-lg">
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
-                style={{ backgroundColor: `${agent.color}20` }}
-              >
-                {agent.emoji}
-              </div>
-              <div>
-                <h3 className="font-heading font-semibold text-sm">{agent.name}</h3>
-                <div className="flex items-center gap-1.5">
-                  <div className={`w-1.5 h-1.5 rounded-full ${
-                    agent.status === 'online' ? 'bg-neon-green' : 'bg-yellow-400'
-                  }`} />
-                  <span className="text-xs text-slate-400">{agent.title}</span>
+        <AnimatePresence mode="popLayout">
+          {agent && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="p-4 border-b border-neutral-200/50 dark:border-neutral-700/50 flex items-center justify-between bg-white/80 dark:bg-neutral-800/80 backdrop-blur z-10"
+            >
+              <div className="flex items-center gap-3">
+                <button onClick={() => navigate('/chat')} className="md:hidden p-1 hover:bg-neutral-100 dark:hover:bg-neutral-700 rounded-lg transition-colors">
+                  <ArrowLeft className="w-5 h-5 text-neutral-500" />
+                </button>
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 shadow-sm"
+                  style={{ background: `linear-gradient(135deg, ${agent.color}15, ${agent.color}30)` }}
+                >
+                  {agent.emoji}
+                </div>
+                <div className="flex flex-col">
+                  <h3 className="font-semibold text-sm text-neutral-800 dark:text-neutral-100">{agent.name}</h3>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <div className={`w-1.5 h-1.5 rounded-full ${
+                      agent.status === 'online' ? 'bg-success-500' : 'bg-warning-500'
+                    }`} />
+                    <span className="text-xs text-neutral-500">{agent.title} • {agent.role}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button className="p-2 rounded-xl hover:bg-white/5 transition-colors text-slate-400 hover:text-white">
-                <Phone className="w-4 h-4" />
-              </button>
-              <button className="p-2 rounded-xl hover:bg-white/5 transition-colors text-slate-400 hover:text-white">
-                <Video className="w-4 h-4" />
-              </button>
-              <button className="p-2 rounded-xl hover:bg-white/5 transition-colors text-slate-400 hover:text-white">
-                <MoreVertical className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
+              <div className="flex items-center gap-1">
+                <button className="p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors text-neutral-400 hover:text-primary-500">
+                  <Phone className="w-4 h-4" />
+                </button>
+                <button className="p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors text-neutral-400 hover:text-primary-500">
+                  <Video className="w-4 h-4" />
+                </button>
+                <button className="p-2 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors text-neutral-400 hover:text-primary-500">
+                  <MoreVertical className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-6 scroll-smooth">
           <AnimatePresence initial={false}>
             {currentMessages.map((msg) => (
               <motion.div
                 key={msg.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 0.3 }}
-                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`max-w-[75%] ${msg.sender === 'user' ? 'order-1' : ''}`}>
-                  {msg.sender === 'agent' && agent && (
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium" style={{ color: agent.color }}>{agent.name}</span>
-                      <span className="text-[10px] text-slate-500">{msg.time}</span>
-                    </div>
-                  )}
-                  <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                    msg.sender === 'user'
-                      ? 'bg-gradient-to-r from-neon-purple to-neon-purple/80 text-white rounded-br-md'
-                      : 'bg-white/5 text-slate-200 rounded-bl-md border border-white/5'
-                  }`}>
-                    {msg.text}
-                  </div>
-                  {msg.sender === 'user' && (
-                    <p className="text-[10px] text-slate-500 text-right mt-1">{msg.time}</p>
-                  )}
-                </div>
+                <MessageBubble
+                  content={msg.text}
+                  sender={msg.sender as 'user' | 'agent'}
+                  timestamp={msg.time}
+                  avatar={msg.sender === 'agent' && agent ? agent.emoji : undefined}
+                />
               </motion.div>
             ))}
           </AnimatePresence>
@@ -229,47 +182,21 @@ export default function ChatPage() {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-2"
             >
-              <div className="bg-white/5 rounded-2xl rounded-bl-md px-4 py-3 border border-white/5">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-400">{agent.name} is thinking</span>
-                  <div className="flex gap-1">
-                    <div className="typing-dot w-1.5 h-1.5 rounded-full bg-neon-purple" />
-                    <div className="typing-dot w-1.5 h-1.5 rounded-full bg-neon-purple" />
-                    <div className="typing-dot w-1.5 h-1.5 rounded-full bg-neon-purple" />
-                  </div>
-                </div>
-              </div>
+              <TypingIndicator
+                agentName={agent.name}
+                avatar={agent.emoji}
+              />
             </motion.div>
           )}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
-        <div className="p-4 border-t border-white/5">
-          <div className="flex items-center gap-3">
-            <button className="p-2 rounded-xl hover:bg-white/5 transition-colors text-slate-400 hover:text-white">
-              <Paperclip className="w-5 h-5" />
-            </button>
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyPress}
-              placeholder={`Message ${agent?.name || 'agent'}...`}
-              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-neon-purple/50 transition-all"
-            />
-            <button
-              onClick={sendMessage}
-              disabled={!input.trim()}
-              className="p-3 rounded-xl bg-gradient-to-r from-neon-purple to-neon-blue hover:shadow-glow-purple disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300"
-            >
-              <Send className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
+        {/* Input Area */}
+        <ChatInputArea
+          onSendMessage={sendMessage}
+          disabled={isTyping}
+        />
       </div>
     </div>
   );

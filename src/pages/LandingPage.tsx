@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { LandingProvider, useLanding } from '../context/LandingContext'
 import IntroOverlay from '../components/landing/IntroOverlay'
 import Nav from '../components/landing/Nav'
@@ -24,13 +25,20 @@ function LandingInner() {
   }, [triggerIntroReplay])
 
   return (
-    <div style={{ minHeight: '100vh' }}>
+    <div className="min-h-screen bg-white">
       <IntroOverlay
         onDone={() => setIntroDone(true)}
         triggerReplay={triggerIntroReplay}
       />
 
-      <div className={`dolly-target${introDone ? ' arrived' : ''}`}>
+      <motion.div
+        initial={{ opacity: 0, scale: 1.02 }}
+        animate={{ 
+          opacity: introDone ? 1 : 0, 
+          scale: introDone ? 1 : 1.02 
+        }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
         <Nav />
 
         <main>
@@ -45,9 +53,10 @@ function LandingInner() {
           <FinalCTA />
           <Footer />
         </main>
-      </div>
+      </motion.div>
 
       <OnboardingModal />
+      {/* TweaksPanel is left here as a functional overlay, though its retro CSS might need updating later if it's visible */}
       <TweaksPanel />
     </div>
   )

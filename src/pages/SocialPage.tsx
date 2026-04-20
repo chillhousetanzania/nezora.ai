@@ -1,6 +1,12 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Instagram, Twitter, Linkedin, Plus, ExternalLink, CheckCircle, AlertCircle, TrendingUp, Users, Heart, MessageCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Instagram, Twitter, Linkedin, Plus, ExternalLink, CheckCircle, AlertCircle } from 'lucide-react';
+import { Card, Badge, Button } from '../components/ui';
+import { ContentPreviewCard } from '../components/content/ContentPreviewCard';
+import { FilterBar } from '../components/content/FilterBar';
+import { EmptyState } from '../components/ui/EmptyState';
+import { ApprovalModal } from '../components/modals/ApprovalModal';
+import { RejectionReasonModal } from '../components/modals/RejectionReasonModal';
 
 interface SocialAccount {
   id: string;
@@ -16,42 +22,16 @@ interface SocialAccount {
 }
 
 const socialAccounts: SocialAccount[] = [
-  {
-    id: 'instagram',
-    platform: 'Instagram',
-    icon: Instagram,
-    username: '@yourcompany',
-    connected: false,
-    followers: '—',
-    engagement: '—',
-    color: '#E4405F',
-    gradient: 'from-[#833AB4] via-[#E4405F] to-[#FCAF45]',
-    recentPosts: 0,
-  },
-  {
-    id: 'twitter',
-    platform: 'Twitter / X',
-    icon: Twitter,
-    username: '@yourcompany',
-    connected: false,
-    followers: '—',
-    engagement: '—',
-    color: '#1DA1F2',
-    gradient: 'from-[#1DA1F2] to-[#0d8ecf]',
-    recentPosts: 0,
-  },
-  {
-    id: 'linkedin',
-    platform: 'LinkedIn',
-    icon: Linkedin,
-    username: 'Your Company',
-    connected: false,
-    followers: '—',
-    engagement: '—',
-    color: '#0A66C2',
-    gradient: 'from-[#0A66C2] to-[#004182]',
-    recentPosts: 0,
-  },
+  { id: 'instagram', platform: 'Instagram', icon: Instagram, username: '@yourcompany', connected: false, followers: '—', engagement: '—', color: '#E4405F', gradient: 'from-[#833AB4] via-[#E4405F] to-[#FCAF45]', recentPosts: 0 },
+  { id: 'twitter', platform: 'Twitter / X', icon: Twitter, username: '@yourcompany', connected: false, followers: '—', engagement: '—', color: '#1DA1F2', gradient: 'from-[#1DA1F2] to-[#0d8ecf]', recentPosts: 0 },
+  { id: 'linkedin', platform: 'LinkedIn', icon: Linkedin, username: 'Your Company', connected: false, followers: '—', engagement: '—', color: '#0A66C2', gradient: 'from-[#0A66C2] to-[#004182]', recentPosts: 0 },
+];
+
+const initialContentPieces = [
+  { id: '1', caption: 'Introducing our journey from idea to reality. Swipe through to see how we\'re changing the game...\n\n#startup #branding #growth', platform: 'Instagram', status: 'pending' as const, createdBy: 'Canvas', scheduledFor: 'Tomorrow, 6:00 PM', mockImageBg: 'linear-gradient(135deg, #833AB4, #E4405F)' },
+  { id: '2', caption: '5 trends every founder needs to watch in 2026. Thread incoming 🧵...\n\n#startup #tech #trends', platform: 'Twitter', status: 'approved' as const, createdBy: 'Maven', scheduledFor: 'Wed, 10:00 AM', mockImageBg: 'linear-gradient(135deg, #1DA1F2, #0d8ecf)' },
+  { id: '3', caption: 'Something exciting is coming. Stay tuned for the big reveal...\n\n#innovation #product #teaser', platform: 'Instagram', status: 'draft' as const, createdBy: 'Canvas', scheduledFor: 'Fri, 7:00 PM', mockImageBg: 'linear-gradient(135deg, #a855f7, #06b6d4)' },
+  { id: '4', caption: 'We just hit 1,000 users! Thank you to our incredible community for believing in us...\n\n#milestone #growth #community', platform: 'LinkedIn', status: 'pending' as const, createdBy: 'Chief', scheduledFor: 'Thu, 9:00 AM', mockImageBg: 'linear-gradient(135deg, #0A66C2, #004182)' },
 ];
 
 const mockScheduledPosts = [
@@ -64,6 +44,15 @@ const mockScheduledPosts = [
 
 export default function SocialPage() {
   const [accounts, setAccounts] = useState(socialAccounts);
+  const [contentPieces, setContentPieces] = useState(initialContentPieces);
+  const [platformFilter, setPlatformFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Modal states
+  const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
+  const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
+  const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
 
   const toggleConnect = (id: string) => {
     setAccounts(prev => prev.map(a =>
@@ -77,130 +66,260 @@ export default function SocialPage() {
     ));
   };
 
-  const connectedCount = accounts.filter(a => a.connected).length;
+  const filteredContent = contentPieces.filter(c => {
+    const matchPlatform = platformFilter === 'all' || c.platform.toLowerCase() === platformFilter;
+    const matchStatus = statusFilter === 'all' || c.status === statusFilter;
+    const matchSearch = c.caption.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchPlatform && matchStatus && matchSearch;
+  });
+
+  const selectedContent = contentPieces.find(c => c.id === selectedContentId);
+
+  // Approval Flow Handlers
+  const handleOpenApproval = (id: string) => {
+    setSelectedContentId(id);
+    setIsApprovalModalOpen(true);
+  };
+
+  const handleOpenRejection = (id: string) => {
+    setSelectedContentId(id);
+    setIsRejectionModalOpen(true);
+  };
+
+  const handleApprove = () => {
+    if (selectedContentId) {
+      setContentPieces(prev => prev.map(c => 
+        c.id === selectedContentId ? { ...c, status: 'approved' } : c
+      ));
+    }
+    setIsApprovalModalOpen(false);
+  };
+
+  const handleRequestChanges = () => {
+    if (selectedContentId) {
+      setContentPieces(prev => prev.map(c => 
+        c.id === selectedContentId ? { ...c, status: 'draft' } : c
+      ));
+    }
+    setIsApprovalModalOpen(false);
+  };
+
+  const handleConfirmRejection = (reason: string) => {
+    console.log("Rejected with reason:", reason);
+    if (selectedContentId) {
+      setContentPieces(prev => prev.map(c => 
+        c.id === selectedContentId ? { ...c, status: 'rejected' } : c
+      ));
+    }
+    setIsApprovalModalOpen(false); // Close if it was open
+    setIsRejectionModalOpen(false);
+  };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-8 max-w-7xl mx-auto pb-12">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="font-heading text-2xl md:text-3xl font-bold">Social Media Hub</h1>
-        <p className="text-slate-400 mt-1">Connect your accounts and let your AI team manage your social presence.</p>
+        <h1 className="text-3xl font-semibold text-neutral-900 dark:text-neutral-50 mb-2">Content Studio</h1>
+        <p className="text-neutral-500">Manage your content, connect accounts, and schedule posts.</p>
       </motion.div>
 
-      {/* Connected Accounts */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      {/* ── Connected Accounts ────────────────────── */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {accounts.map((account, i) => (
           <motion.div
             key={account.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="glass rounded-2xl p-6 hover:bg-white/5 transition-all duration-300"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${account.gradient} flex items-center justify-center`}>
-                  <account.icon className="w-5 h-5 text-white" />
+            <Card variant="default" padding="lg" hoverable className="h-full flex flex-col">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${account.gradient} shadow-soft-sm flex items-center justify-center`}>
+                    <account.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-base text-neutral-900 dark:text-neutral-100">{account.platform}</h3>
+                    <p className="text-sm text-neutral-500">{account.username}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-heading font-semibold text-sm">{account.platform}</h3>
-                  <p className="text-xs text-slate-400">{account.username}</p>
-                </div>
+                {account.connected ? (
+                  <CheckCircle className="w-5 h-5 text-success-500" />
+                ) : (
+                  <AlertCircle className="w-5 h-5 text-neutral-300 dark:text-neutral-600" />
+                )}
               </div>
-              {account.connected ? (
-                <CheckCircle className="w-5 h-5 text-neon-green" />
-              ) : (
-                <AlertCircle className="w-5 h-5 text-slate-500" />
-              )}
-            </div>
 
-            {account.connected ? (
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <Users className="w-3 h-3 text-slate-400" />
+              <div className="flex-grow">
+                {account.connected ? (
+                  <div className="grid grid-cols-3 gap-3 mb-6">
+                    <div className="text-center p-2 rounded-xl bg-neutral-50 dark:bg-neutral-800/50">
+                      <p className="font-semibold text-lg text-neutral-900 dark:text-neutral-200">{account.followers}</p>
+                      <p className="text-[10px] uppercase tracking-wide text-neutral-500 mt-1">Followers</p>
+                    </div>
+                    <div className="text-center p-2 rounded-xl bg-neutral-50 dark:bg-neutral-800/50">
+                      <p className="font-semibold text-lg text-neutral-900 dark:text-neutral-200">{account.engagement}</p>
+                      <p className="text-[10px] uppercase tracking-wide text-neutral-500 mt-1">Engagement</p>
+                    </div>
+                    <div className="text-center p-2 rounded-xl bg-neutral-50 dark:bg-neutral-800/50">
+                      <p className="font-semibold text-lg text-neutral-900 dark:text-neutral-200">{account.recentPosts}</p>
+                      <p className="text-[10px] uppercase tracking-wide text-neutral-500 mt-1">Posts</p>
+                    </div>
                   </div>
-                  <p className="font-heading font-bold text-lg mt-1">{account.followers}</p>
-                  <p className="text-[10px] text-slate-500">Followers</p>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <TrendingUp className="w-3 h-3 text-slate-400" />
+                ) : (
+                  <div className="py-6 text-center">
+                    <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-1">Not connected</p>
+                    <p className="text-xs text-neutral-500">Connect to synchronize your content pipeline.</p>
                   </div>
-                  <p className="font-heading font-bold text-lg mt-1">{account.engagement}</p>
-                  <p className="text-[10px] text-slate-500">Engagement</p>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <Heart className="w-3 h-3 text-slate-400" />
-                  </div>
-                  <p className="font-heading font-bold text-lg mt-1">{account.recentPosts}</p>
-                  <p className="text-[10px] text-slate-500">Posts</p>
-                </div>
+                )}
               </div>
-            ) : (
-              <div className="py-4 text-center">
-                <p className="text-sm text-slate-500 mb-1">Not connected</p>
-                <p className="text-xs text-slate-600">Connect to start posting</p>
-              </div>
-            )}
 
-            <button
-              onClick={() => toggleConnect(account.id)}
-              className={`w-full py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${
-                account.connected
-                  ? 'bg-white/5 hover:bg-red-500/10 text-slate-400 hover:text-red-400 border border-white/10'
-                  : `bg-gradient-to-r ${account.gradient} text-white hover:shadow-lg`
-              }`}
-            >
-              {account.connected ? 'Disconnect' : 'Connect Account'}
-            </button>
+              <Button
+                variant={account.connected ? 'secondary' : 'primary'}
+                fullWidth
+                onClick={() => toggleConnect(account.id)}
+                className={`mt-auto ${!account.connected ? `bg-gradient-to-r ${account.gradient} text-white border-0` : ''}`}
+              >
+                {account.connected ? 'Disconnect' : 'Connect Account'}
+              </Button>
+            </Card>
           </motion.div>
         ))}
       </div>
 
-      {/* Upcoming Posts */}
-      <motion.div
+      {/* ── Content Studio Grid ──────────────────── */}
+      <motion.div 
+        className="flex flex-col gap-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="glass rounded-2xl p-6"
       >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-heading text-xl font-semibold">Upcoming Posts</h2>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-neon-purple bg-neon-purple/10 rounded-xl hover:bg-neon-purple/20 transition-all">
-            <Plus className="w-4 h-4" />
-            Create Post
-          </button>
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">Content Pipeline</h2>
         </div>
+        
+        {/* Filter Bar */}
+        <FilterBar 
+          platform={platformFilter}
+          onPlatformChange={setPlatformFilter}
+          status={statusFilter}
+          onStatusChange={setStatusFilter}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
 
-        <div className="space-y-3">
-          {mockScheduledPosts.map((post, i) => (
-            <motion.div
-              key={post.id}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 + i * 0.08 }}
-              className="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-all border border-white/5"
-            >
-              <div className="text-xl">{post.icon}</div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-medium">{post.title}</h4>
-                <p className="text-xs text-slate-500">{post.platform} · {post.time}</p>
-              </div>
-              <span className={`text-[11px] px-2.5 py-1 rounded-full font-medium ${
-                post.status === 'ready' ? 'bg-neon-green/20 text-neon-green' :
-                post.status === 'review' ? 'bg-yellow-500/20 text-yellow-400' :
-                'bg-slate-500/20 text-slate-400'
-              }`}>
-                {post.status}
-              </span>
-              <button className="p-2 rounded-lg hover:bg-white/10 transition-colors text-slate-400 hover:text-white">
-                <ExternalLink className="w-4 h-4" />
-              </button>
-            </motion.div>
-          ))}
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <AnimatePresence mode="popLayout">
+            {filteredContent.length > 0 ? (
+              filteredContent.map((content, i) => (
+                <motion.div
+                  key={content.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.3, delay: 0.1 * i }}
+                >
+                  <ContentPreviewCard
+                    platform={content.platform}
+                    status={content.status}
+                    caption={content.caption}
+                    scheduledFor={content.scheduledFor}
+                    author={content.createdBy}
+                    onApprove={() => handleOpenApproval(content.id)}
+                    onEdit={() => console.log('Edit clicked for', content.id)}
+                    onReject={() => handleOpenRejection(content.id)}
+                  />
+                </motion.div>
+              ))
+            ) : (
+               <motion.div 
+                 initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                 className="col-span-full py-6"
+               >
+                 <EmptyState
+                   icon={AlertCircle}
+                   title="No content found"
+                   description="No content matched your filters. Try adjusting the search or status."
+                 />
+               </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.div>
+
+      {/* ── Upcoming Posts ────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <Card variant="default" padding="lg">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-50">Upcoming Schedule</h2>
+            <Button variant="primary" size="sm" icon={<Plus />} iconPosition="left">
+              Create Post
+            </Button>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            {mockScheduledPosts.map((post, i) => (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 + i * 0.08 }}
+                className="flex items-center gap-4 p-4 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all border border-transparent hover:border-neutral-200/50 dark:hover:border-neutral-700/50 group"
+              >
+                <div className="text-xl flex-shrink-0 w-10 h-10 flex items-center justify-center bg-white dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-100 dark:border-neutral-800">
+                  {post.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 truncate">{post.title}</h4>
+                  <p className="text-xs text-neutral-500">{post.platform} · {post.time}</p>
+                </div>
+                <Badge
+                  variant={post.status === 'ready' ? 'success' : post.status === 'review' ? 'warning' : 'default'}
+                  size="sm"
+                >
+                  {post.status}
+                </Badge>
+                <button className="p-2 ml-2 rounded-lg text-neutral-300 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all opacity-0 group-hover:opacity-100">
+                  <ExternalLink className="w-4 h-4" />
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        </Card>
+      </motion.div>
+
+      {/* Modals */}
+      {selectedContent && (
+        <ApprovalModal
+          isOpen={isApprovalModalOpen}
+          onClose={() => setIsApprovalModalOpen(false)}
+          onApprove={handleApprove}
+          onRequestChanges={handleRequestChanges}
+          onReject={() => {
+            setIsApprovalModalOpen(false);
+            setIsRejectionModalOpen(true);
+          }}
+          contentDetails={{
+            platform: selectedContent.platform,
+            caption: selectedContent.caption,
+            createdBy: selectedContent.createdBy,
+            scheduledFor: selectedContent.scheduledFor,
+            status: selectedContent.status,
+          }}
+        />
+      )}
+
+      <RejectionReasonModal
+        isOpen={isRejectionModalOpen}
+        onClose={() => setIsRejectionModalOpen(false)}
+        onConfirm={handleConfirmRejection}
+      />
     </div>
   );
 }
+

@@ -1,19 +1,31 @@
+import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useApp } from './context/AppContext';
 import AppLayout from './components/layout/AppLayout';
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import SignUpPage from './pages/SignUpPage';
-import OnboardingPage from './pages/OnboardingPage';
-import DashboardPage from './pages/DashboardPage';
-import TeamPage from './pages/TeamPage';
-import ChatPage from './pages/ChatPage';
-import CalendarPage from './pages/CalendarPage';
-import SocialPage from './pages/SocialPage';
-import AnalyticsPage from './pages/AnalyticsPage';
-import SettingsPage from './pages/SettingsPage';
-import HQPage from './pages/HQPage';
-import OrgPage from './pages/OrgPage';
+
+// Lazy load pages for performance optimization
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const SignUpPage = lazy(() => import('./pages/SignUpPage'));
+const OnboardingPage = lazy(() => import('./pages/OnboardingPage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const TeamPage = lazy(() => import('./pages/TeamPage'));
+const ChatPage = lazy(() => import('./pages/ChatPage'));
+const CalendarPage = lazy(() => import('./pages/CalendarPage'));
+const SocialPage = lazy(() => import('./pages/SocialPage'));
+const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
+const SettingsPage = lazy(() => import('./pages/SettingsPage'));
+const HQPage = lazy(() => import('./pages/HQPage'));
+const OrgPage = lazy(() => import('./pages/OrgPage'));
+
+// Simple loading fallback
+function SuspenseFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-900">
+      <div className="w-8 h-8 rounded-full border-2 border-neutral-200 dark:border-neutral-700 border-t-primary-500 animate-spin" />
+    </div>
+  );
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useApp();
@@ -23,39 +35,41 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <Routes>
-      {/* Public routes */}
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignUpPage />} />
-      <Route path="/onboarding" element={
-        <ProtectedRoute>
-          <OnboardingPage />
-        </ProtectedRoute>
-      } />
+    <Suspense fallback={<SuspenseFallback />}>
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/onboarding" element={
+          <ProtectedRoute>
+            <OnboardingPage />
+          </ProtectedRoute>
+        } />
 
-      {/* Protected app routes */}
-      <Route element={
-        <ProtectedRoute>
-          <AppLayout />
-        </ProtectedRoute>
-      }>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/team" element={<TeamPage />} />
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="/chat/:agentId" element={<ChatPage />} />
-        <Route path="/calendar" element={<CalendarPage />} />
-        <Route path="/social" element={<SocialPage />} />
-        <Route path="/analytics" element={<AnalyticsPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-      </Route>
+        {/* Protected app routes */}
+        <Route element={
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        }>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/team" element={<TeamPage />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/chat/:agentId" element={<ChatPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/social" element={<SocialPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+        </Route>
 
-      {/* Nezora product pages */}
-      <Route path="/hq" element={<HQPage />} />
-      <Route path="/org" element={<OrgPage />} />
+        {/* Nezora product pages */}
+        <Route path="/hq" element={<HQPage />} />
+        <Route path="/org" element={<OrgPage />} />
 
-      {/* Catch-all */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* Catch-all */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
 }
