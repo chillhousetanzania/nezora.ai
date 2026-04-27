@@ -157,7 +157,7 @@ export default function OnboardingPage() {
                     <h2 className="font-heading text-2xl font-semibold text-neutral-700 dark:text-neutral-200 mb-2">Pick your industry 🏭</h2>
                     <p className="text-neutral-500 text-sm">This helps your AI team tailor their strategies.</p>
                   </div>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {industries.map((ind) => (
                       <button
                         key={ind.id}
@@ -254,7 +254,7 @@ export default function OnboardingPage() {
                   </div>
 
                   {/* Agent assembly animation */}
-                  <div className="grid grid-cols-4 gap-3 my-6">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6">
                     {agents.map((agent, i) => (
                       <motion.div
                         key={agent.id}

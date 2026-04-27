@@ -15,7 +15,7 @@ export default function Hero() {
   ]
 
   return (
-    <section className="relative min-h-[90vh] pt-32 pb-20 px-6 lg:px-12 flex items-center overflow-hidden bg-neutral-50" id="hero">
+    <section className="relative min-h-[90vh] pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6 lg:px-12 flex items-center overflow-hidden bg-neutral-50" id="hero">
       {/* Background soft gradients */}
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary-100/40 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3" />
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-secondary-100/40 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3" />
@@ -38,7 +38,7 @@ export default function Hero() {
             <span className="text-xs font-semibold uppercase tracking-wider text-neutral-600">Now in Early Access</span>
           </div>
 
-          <h1 className="text-[3.5rem] leading-[1.05] md:text-[4.5rem] font-heading font-semibold text-neutral-900 mb-6 tracking-tight">
+          <h1 className="text-[2.5rem] sm:text-[3.5rem] leading-[1.05] md:text-[4.5rem] font-heading font-semibold text-neutral-900 mb-6 tracking-tight">
             {HEADLINES[headline] || HEADLINES[0]}
           </h1>
 
@@ -156,7 +156,7 @@ export default function Hero() {
           <motion.div 
             animate={{ y: [0, -10, 0] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -left-12 top-24 bg-white p-4 rounded-2xl shadow-soft-lg border border-neutral-100 flex items-center gap-3"
+            className="hidden sm:flex absolute -left-12 top-24 bg-white p-4 rounded-2xl shadow-soft-lg border border-neutral-100 items-center gap-3"
           >
             <div className="w-2 h-2 rounded-full bg-success-500" />
             <span className="text-sm font-medium text-neutral-800">CFO generated Q3 report</span>
@@ -165,7 +165,7 @@ export default function Hero() {
           <motion.div 
             animate={{ y: [0, 10, 0] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute -right-8 bottom-32 bg-white p-4 rounded-2xl shadow-soft-lg border border-neutral-100 flex items-center gap-3"
+            className="hidden sm:flex absolute -right-8 bottom-32 bg-white p-4 rounded-2xl shadow-soft-lg border border-neutral-100 items-center gap-3"
           >
             <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
               <span className="text-sm">✨</span>

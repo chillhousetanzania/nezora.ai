@@ -130,7 +130,7 @@ export default function OrgPage() {
         </div>
       </nav>
 
-      <div className="max-w-5xl mx-auto px-6 py-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
         {/* Header */}
         <div className="mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-50 border border-primary-200/50 mb-5">
@@ -165,6 +165,8 @@ export default function OrgPage() {
         {/* Org chart view */}
         {view === 'chart' && (
           <div>
+            {/* Scrollable chart on mobile */}
+            <div className="overflow-x-auto pb-4 -mx-4 sm:mx-0 px-4 sm:px-0">
             {/* You */}
             <div className="flex justify-center mb-6">
               <div className="flex flex-col items-center gap-2">
@@ -216,9 +218,11 @@ export default function OrgPage() {
                 </div>
               ))}
             </div>
-
+            </div>
+            {/* end scroll wrapper */}
+            </div>
             {/* Legend */}
-            <div className="grid grid-cols-2 gap-3 mt-16">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-10 sm:mt-16">
               <div className="bg-white rounded-2xl border border-neutral-200/50 p-6 shadow-soft-xs">
                 <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3">How hierarchy works</h4>
                 <p className="text-sm text-neutral-600 leading-relaxed">You direct the CEO. The CEO coordinates department heads. Each head manages their specialists. Orders flow top-down; work and insights flow back up.</p>
@@ -233,7 +237,7 @@ export default function OrgPage() {
 
         {/* Teams view */}
         {view === 'teams' && (
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {DEPARTMENTS.map(dept => (
               <div key={dept.name} className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs">
                 <h4 className="text-xs font-semibold text-primary-500 uppercase tracking-wider mb-4">{dept.name}</h4>
@@ -259,7 +263,7 @@ export default function OrgPage() {
 
         {/* Roster view */}
         {view === 'roster' && (
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {EMPLOYEES.map(emp => (
               <motion.div
                 key={emp.initials}
