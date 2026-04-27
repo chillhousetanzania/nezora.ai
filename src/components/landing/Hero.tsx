@@ -1,7 +1,135 @@
 import { useLanding } from '../../context/LandingContext'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+
+const LIVE_FEED = [
+  { agent: 'CFO', initials: 'CF', msg: 'Q3 report generated — revenue up 12% MoM', color: 'from-violet-500 to-purple-600', dot: 'bg-violet-400' },
+  { agent: 'CMO', initials: 'CM', msg: 'Published 3 Instagram posts — 14.2K reach', color: 'from-pink-500 to-rose-500', dot: 'bg-pink-400' },
+  { agent: 'Eng', initials: 'EG', msg: 'PR #47 merged — payment flow v2 live', color: 'from-blue-500 to-cyan-500', dot: 'bg-blue-400' },
+  { agent: 'Sales', initials: 'SL', msg: 'Demo booked with Arko Labs — Wed 14:00', color: 'from-emerald-500 to-teal-500', dot: 'bg-emerald-400' },
+  { agent: 'Content', initials: 'CT', msg: 'TikTok reel live — 2.1K views in 1 hour', color: 'from-orange-500 to-amber-500', dot: 'bg-orange-400' },
+  { agent: 'CEO', initials: 'CE', msg: 'Q3 strategy drafted — review in Notion', color: 'from-neutral-700 to-neutral-900', dot: 'bg-neutral-500' },
+]
+
+function MobileActivityFeed() {
+  const [visible, setVisible] = useState<number[]>([])
+  const [cycle, setCycle] = useState(0)
+
+  useEffect(() => {
+    setVisible([])
+    let i = 0
+    const interval = setInterval(() => {
+      if (i < LIVE_FEED.length) {
+        setVisible(prev => [...prev, i])
+        i++
+      } else {
+        clearInterval(interval)
+        // restart after pause
+        setTimeout(() => setCycle(c => c + 1), 3000)
+      }
+    }, 800)
+    return () => clearInterval(interval)
+  }, [cycle])
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.5 }}
+      className="lg:hidden mt-10 w-full"
+    >
+      {/* Card shell */}
+      <div className="bg-white rounded-3xl border border-neutral-200/60 shadow-soft-xl overflow-hidden">
+        {/* Top bar */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100 bg-neutral-50/80">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+            </div>
+            <span className="text-xs font-semibold text-neutral-700 tracking-tight">Nezora HQ</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-success-500" />
+            </span>
+            <span className="text-[10px] font-semibold text-success-600 uppercase tracking-wider">Live</span>
+          </div>
+        </div>
+
+        {/* Feed rows */}
+        <div className="p-3 flex flex-col gap-2 min-h-[260px]">
+          <AnimatePresence>
+            {LIVE_FEED.map((item, i) =>
+              visible.includes(i) ? (
+                <motion.div
+                  key={`${cycle}-${i}`}
+                  initial={{ opacity: 0, x: -16, scale: 0.97 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex items-center gap-3 bg-neutral-50 rounded-2xl px-3 py-2.5 border border-neutral-100"
+                >
+                  {/* Avatar */}
+                  <div className={`w-8 h-8 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0 shadow-sm`}>
+                    {item.initials}
+                  </div>
+                  {/* Message */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">{item.agent}</span>
+                      <span className={`w-1.5 h-1.5 rounded-full ${item.dot} flex-shrink-0`} />
+                    </div>
+                    <p className="text-xs font-medium text-neutral-700 leading-snug truncate">{item.msg}</p>
+                  </div>
+                  {/* Check */}
+                  <CheckCircle2 className="w-4 h-4 text-success-400 flex-shrink-0" />
+                </motion.div>
+              ) : null
+            )}
+          </AnimatePresence>
+
+          {/* Typing indicator while loading more */}
+          {visible.length < LIVE_FEED.length && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex items-center gap-3 px-3 py-2.5"
+            >
+              <div className="w-8 h-8 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center flex-shrink-0">
+                <div className="flex gap-0.5">
+                  {[0,1,2].map(d => (
+                    <motion.span
+                      key={d}
+                      animate={{ opacity: [0.3, 1, 0.3] }}
+                      transition={{ duration: 1, repeat: Infinity, delay: d * 0.2 }}
+                      className="w-1 h-1 rounded-full bg-neutral-400"
+                    />
+                  ))}
+                </div>
+              </div>
+              <span className="text-xs text-neutral-400 font-medium">Your team is working…</span>
+            </motion.div>
+          )}
+        </div>
+
+        {/* Bottom KPI strip */}
+        <div className="flex border-t border-neutral-100">
+          {[
+            { label: 'MRR', value: '$4.3K' },
+            { label: 'Reach', value: '94.2K' },
+            { label: 'Tasks', value: '142' },
+          ].map((k, i) => (
+            <div key={k.label} className={`flex-1 py-2.5 text-center ${i < 2 ? 'border-r border-neutral-100' : ''}`}>
+              <div className="text-sm font-bold text-neutral-800">{k.value}</div>
+              <div className="text-[9px] font-semibold text-neutral-400 uppercase tracking-wider">{k.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  )
+}
 
 // Redesigned premium Hero component abandoning the retro "Tower" for a clean Apple-inspired layout
 export default function Hero() {
@@ -46,10 +174,10 @@ export default function Hero() {
             Register your idea. In seconds, your company comes to life — complete with a fully operational team of AI experts who execute, collaborate, and grow your business 24/7.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-14">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-10">
             <button 
               onClick={openOnboarding}
-              className="h-14 px-8 rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-medium text-lg hover:shadow-glow-primary transition-all duration-300 flex items-center justify-center gap-2 group active:scale-[0.98]"
+              className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-medium text-lg hover:shadow-glow-primary transition-all duration-300 flex items-center justify-center gap-2 group active:scale-[0.98]"
             >
               Build your team
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -57,13 +185,13 @@ export default function Hero() {
             <a 
               href="#how" 
               onClick={(e) => { e.preventDefault(); document.querySelector('#how')?.scrollIntoView({ behavior: 'smooth' }) }}
-              className="h-14 px-8 rounded-2xl bg-white border border-neutral-200 text-neutral-700 font-medium text-lg hover:bg-neutral-50 hover:shadow-soft-sm transition-all duration-300 flex items-center justify-center"
+              className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-white border border-neutral-200 text-neutral-700 font-medium text-lg hover:bg-neutral-50 hover:shadow-soft-sm transition-all duration-300 flex items-center justify-center"
             >
               See how it works
             </a>
           </div>
 
-          <div className="flex items-center gap-8 md:gap-12 text-sm text-neutral-500 font-medium">
+          <div className="flex items-center gap-8 md:gap-12 text-sm text-neutral-500 font-medium mb-4">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-success-500" />
               <span>12 AI Employees</span>
@@ -79,6 +207,10 @@ export default function Hero() {
               <span>24/7 Operations</span>
             </div>
           </div>
+
+          {/* Mobile activity feed — shown only on small screens */}
+          <MobileActivityFeed />
+
         </motion.div>
 
         {/* Right Graphic: hidden on mobile, shown on lg+ */}
