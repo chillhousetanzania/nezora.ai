@@ -451,16 +451,16 @@ export default function HQPage() {
           {activeNav === 'Overview' && (
             <div className="animate-in fade-in duration-300">
               {/* Header */}
-              <div className="flex justify-between items-start mb-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
                 <div>
                   <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest mb-1">Week Overview</p>
                   <h1 className="text-2xl font-heading font-semibold text-neutral-800 tracking-tight">Your company is running.</h1>
                 </div>
                 <div className="flex gap-2">
-                  <button className="text-sm text-neutral-600 bg-white border border-neutral-200 px-4 py-2 rounded-xl hover:bg-neutral-50 transition-colors font-medium shadow-soft-xs">
+                  <button className="text-sm text-neutral-600 bg-white border border-neutral-200 px-4 py-2 rounded-xl hover:bg-neutral-50 transition-colors font-medium shadow-soft-xs whitespace-nowrap flex-1 sm:flex-none text-center justify-center items-center flex">
                     New mission
                   </button>
-                  <button className="text-sm text-white bg-gradient-to-r from-primary-500 to-secondary-500 px-4 py-2 rounded-xl font-semibold hover:shadow-glow-primary transition-all shadow-soft-sm">
+                  <button className="text-sm text-white bg-gradient-to-r from-primary-500 to-secondary-500 px-4 py-2 rounded-xl font-semibold hover:shadow-glow-primary transition-all shadow-soft-sm whitespace-nowrap flex-1 sm:flex-none text-center justify-center items-center flex">
                     Brief team →
                   </button>
                 </div>
@@ -554,12 +554,12 @@ export default function HQPage() {
 
           {activeNav === 'Missions' && (
             <div className="animate-in fade-in duration-300">
-              <div className="flex justify-between items-start mb-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
                 <div>
                   <h1 className="text-2xl font-heading font-semibold text-neutral-800 tracking-tight">Missions</h1>
                   <p className="text-sm text-neutral-500 mt-1">Manage active and past company objectives.</p>
                 </div>
-                <button className="text-sm text-white bg-gradient-to-r from-primary-500 to-secondary-500 px-4 py-2 rounded-xl font-semibold hover:shadow-glow-primary transition-all shadow-soft-sm">
+                <button className="text-sm text-white bg-gradient-to-r from-primary-500 to-secondary-500 px-4 py-2 rounded-xl font-semibold hover:shadow-glow-primary transition-all shadow-soft-sm whitespace-nowrap w-full sm:w-auto text-center justify-center items-center flex">
                   New Mission +
                 </button>
               </div>
@@ -672,14 +672,12 @@ export default function HQPage() {
               </div>
               <div className="bg-white rounded-2xl border border-neutral-200/50 p-6 shadow-soft-xs flex flex-col">
                 <h3 className="text-sm font-semibold text-neutral-800 mb-6">Tasks Completed (30 Days)</h3>
-                <div className="flex-1 flex items-end gap-2 sm:gap-3 h-48 w-full">
+                <div className="flex-1 flex items-end gap-2 sm:gap-3 h-48 w-full mt-4">
                   {[24, 35, 42, 38, 55, 62, 58, 70, 85, 75, 90, 82, 95, 105].map((h, i) => (
-                    <motion.div 
+                    <div 
                       key={i} 
-                      initial={{ height: 0 }}
-                      animate={{ height: `${(h / 105) * 100}%` }}
-                      transition={{ duration: 0.8, delay: i * 0.05, ease: "easeOut" }}
-                      className="flex-1 bg-gradient-to-t from-primary-400 to-secondary-400 rounded-t-md opacity-80 hover:opacity-100 transition-opacity"
+                      style={{ height: `${(h / 105) * 100}%`, minHeight: '4px' }}
+                      className="flex-1 bg-gradient-to-t from-primary-400 to-secondary-400 rounded-t-md opacity-80 hover:opacity-100 transition-opacity animate-in slide-in-from-bottom-8 fade-in duration-700"
                     />
                   ))}
                 </div>
