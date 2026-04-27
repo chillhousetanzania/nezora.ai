@@ -218,9 +218,9 @@ export default function OrgPage() {
                 </div>
               ))}
             </div>
+            {/* end scroll container */}
             </div>
-            {/* end scroll wrapper */}
-            </div>
+
             {/* Legend */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-10 sm:mt-16">
               <div className="bg-white rounded-2xl border border-neutral-200/50 p-6 shadow-soft-xs">
