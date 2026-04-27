@@ -670,9 +670,24 @@ export default function HQPage() {
                   <div className="text-xs text-neutral-400 font-medium mt-1">Stable</div>
                 </div>
               </div>
-              <div className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs h-64 flex flex-col items-center justify-center">
-                <BarChart3 className="w-12 h-12 text-neutral-200 mb-3" />
-                <p className="text-sm font-medium text-neutral-500">Detailed graphs loading...</p>
+              <div className="bg-white rounded-2xl border border-neutral-200/50 p-6 shadow-soft-xs flex flex-col">
+                <h3 className="text-sm font-semibold text-neutral-800 mb-6">Tasks Completed (30 Days)</h3>
+                <div className="flex-1 flex items-end gap-2 sm:gap-3 h-48 w-full">
+                  {[24, 35, 42, 38, 55, 62, 58, 70, 85, 75, 90, 82, 95, 105].map((h, i) => (
+                    <motion.div 
+                      key={i} 
+                      initial={{ height: 0 }}
+                      animate={{ height: `${(h / 105) * 100}%` }}
+                      transition={{ duration: 0.8, delay: i * 0.05, ease: "easeOut" }}
+                      className="flex-1 bg-gradient-to-t from-primary-400 to-secondary-400 rounded-t-md opacity-80 hover:opacity-100 transition-opacity"
+                    />
+                  ))}
+                </div>
+                <div className="flex justify-between mt-3 text-[10px] font-semibold text-neutral-400 uppercase tracking-widest border-t border-neutral-100 pt-3">
+                  <span>1 Apr</span>
+                  <span>15 Apr</span>
+                  <span>30 Apr</span>
+                </div>
               </div>
             </div>
           )}
