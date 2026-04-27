@@ -98,6 +98,7 @@ export default function HQPage() {
   const [typing, setTyping] = useState(false)
   const chatRef = useRef<HTMLDivElement>(null)
   const [introOpen, setIntroOpen] = useState(true)
+  const [activeNav, setActiveNav] = useState('Overview')
 
   const emp = EMPLOYEES[activeAgent]
 
@@ -220,8 +221,9 @@ export default function HQPage() {
               return (
                 <div
                   key={item.label}
+                  onClick={() => setActiveNav(item.label)}
                   className={`flex items-center gap-2.5 px-3 py-2 rounded-lg mb-0.5 cursor-pointer text-sm font-medium transition-colors ${
-                    i === 0
+                    activeNav === item.label
                       ? 'bg-primary-50 text-primary-600'
                       : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700'
                   }`}
@@ -265,105 +267,275 @@ export default function HQPage() {
 
         {/* Main content */}
         <div className="overflow-auto p-6 bg-neutral-50">
-          {/* Header */}
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest mb-1">Week Overview</p>
-              <h1 className="text-2xl font-heading font-semibold text-neutral-800 tracking-tight">Your company is running.</h1>
-            </div>
-            <div className="flex gap-2">
-              <button className="text-sm text-neutral-600 bg-white border border-neutral-200 px-4 py-2 rounded-xl hover:bg-neutral-50 transition-colors font-medium shadow-soft-xs">
-                New mission
-              </button>
-              <button className="text-sm text-white bg-gradient-to-r from-primary-500 to-secondary-500 px-4 py-2 rounded-xl font-semibold hover:shadow-glow-primary transition-all shadow-soft-sm">
-                Brief team →
-              </button>
-            </div>
-          </div>
-
-          {/* KPI cards */}
-          <div className="grid grid-cols-4 gap-3 mb-6">
-            {KPI_DATA.map(kpi => (
-              <div key={kpi.label} className="bg-white rounded-2xl border border-neutral-200/50 p-4 shadow-soft-xs hover:shadow-soft-sm transition-shadow">
-                <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-2">{kpi.label}</p>
-                <div className="text-2xl font-bold text-neutral-800 tracking-tight mb-1">{kpi.value}</div>
-                <div className="flex justify-between items-end">
-                  <div className={`flex items-center gap-1 text-xs font-semibold ${kpi.up ? 'text-success-500' : 'text-error-500'}`}>
-                    {kpi.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                    {kpi.delta}
-                  </div>
-                  <Sparkline data={kpi.spark} />
+          {activeNav === 'Overview' && (
+            <div className="animate-in fade-in duration-300">
+              {/* Header */}
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest mb-1">Week Overview</p>
+                  <h1 className="text-2xl font-heading font-semibold text-neutral-800 tracking-tight">Your company is running.</h1>
+                </div>
+                <div className="flex gap-2">
+                  <button className="text-sm text-neutral-600 bg-white border border-neutral-200 px-4 py-2 rounded-xl hover:bg-neutral-50 transition-colors font-medium shadow-soft-xs">
+                    New mission
+                  </button>
+                  <button className="text-sm text-white bg-gradient-to-r from-primary-500 to-secondary-500 px-4 py-2 rounded-xl font-semibold hover:shadow-glow-primary transition-all shadow-soft-sm">
+                    Brief team →
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
 
-          {/* Activity + Missions */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            {/* Activity */}
-            <div className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs">
-              <div className="flex items-center gap-2 mb-4">
-                <Activity className="w-4 h-4 text-primary-500" />
-                <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Overnight Activity</h3>
-              </div>
-              <div className="space-y-3">
-                {ACTIVITY.map(a => (
-                  <div key={a.time + a.agent} className="flex gap-3 pb-3 border-b border-neutral-100 last:border-0 last:pb-0">
-                    <span className="text-[11px] text-neutral-400 font-mono flex-shrink-0 pt-0.5">{a.time}</span>
-                    <span className="text-[11px] text-primary-500 font-semibold flex-shrink-0 pt-0.5">{a.agent}</span>
-                    <span className="text-sm text-neutral-600 leading-relaxed">{a.msg}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Missions */}
-            <div className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs">
-              <div className="flex items-center gap-2 mb-4">
-                <Rocket className="w-4 h-4 text-secondary-500" />
-                <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Missions in Flight</h3>
-              </div>
-              <div className="space-y-4">
-                {MISSIONS.map(m => (
-                  <div key={m.title}>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-neutral-700">{m.title}</span>
-                      <StatusBadge status={m.status} />
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <div className="flex-1 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-700 ${
-                            m.status === 'queued' ? 'bg-neutral-300' : 'bg-gradient-to-r from-primary-400 to-secondary-400'
-                          }`}
-                          style={{ width: `${m.progress}%` }}
-                        />
+              {/* KPI cards */}
+              <div className="grid grid-cols-4 gap-3 mb-6">
+                {KPI_DATA.map(kpi => (
+                  <div key={kpi.label} className="bg-white rounded-2xl border border-neutral-200/50 p-4 shadow-soft-xs hover:shadow-soft-sm transition-shadow">
+                    <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-2">{kpi.label}</p>
+                    <div className="text-2xl font-bold text-neutral-800 tracking-tight mb-1">{kpi.value}</div>
+                    <div className="flex justify-between items-end">
+                      <div className={`flex items-center gap-1 text-xs font-semibold ${kpi.up ? 'text-success-500' : 'text-error-500'}`}>
+                        {kpi.up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                        {kpi.delta}
                       </div>
-                      <span className="text-[11px] text-neutral-400 font-medium w-8 text-right">{m.progress}%</span>
-                      <span className="text-[11px] text-neutral-400">{m.owner}</span>
+                      <Sparkline data={kpi.spark} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Activity + Missions */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                {/* Activity */}
+                <div className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Activity className="w-4 h-4 text-primary-500" />
+                    <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Overnight Activity</h3>
+                  </div>
+                  <div className="space-y-3">
+                    {ACTIVITY.map((a, i) => (
+                      <div key={a.time + a.agent + i} className="flex gap-3 pb-3 border-b border-neutral-100 last:border-0 last:pb-0">
+                        <span className="text-[11px] text-neutral-400 font-mono flex-shrink-0 pt-0.5">{a.time}</span>
+                        <span className="text-[11px] text-primary-500 font-semibold flex-shrink-0 pt-0.5">{a.agent}</span>
+                        <span className="text-sm text-neutral-600 leading-relaxed">{a.msg}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Missions */}
+                <div className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Rocket className="w-4 h-4 text-secondary-500" />
+                    <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Missions in Flight</h3>
+                  </div>
+                  <div className="space-y-4">
+                    {MISSIONS.map(m => (
+                      <div key={m.title}>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm font-medium text-neutral-700">{m.title}</span>
+                          <StatusBadge status={m.status} />
+                        </div>
+                        <div className="flex gap-2 items-center">
+                          <div className="flex-1 h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-700 ${
+                                m.status === 'queued' ? 'bg-neutral-300' : 'bg-gradient-to-r from-primary-400 to-secondary-400'
+                              }`}
+                              style={{ width: `${m.progress}%` }}
+                            />
+                          </div>
+                          <span className="text-[11px] text-neutral-400 font-medium w-8 text-right">{m.progress}%</span>
+                          <span className="text-[11px] text-neutral-400">{m.owner}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Shipped */}
+              <div className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs">
+                <div className="flex items-center gap-2 mb-4">
+                  <Package className="w-4 h-4 text-success-500" />
+                  <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Shipped Overnight</h3>
+                </div>
+                <div className="grid grid-cols-6 gap-3">
+                  {SHIPPED.map(s => (
+                    <div key={s.label} className="bg-neutral-50 rounded-xl border border-neutral-100 p-3 text-center hover:bg-white hover:shadow-soft-xs hover:border-neutral-200 transition-all cursor-default">
+                      <div className="text-xl mb-2">{s.icon}</div>
+                      <div className="text-xs font-semibold text-neutral-700 mb-0.5">{s.label}</div>
+                      <div className="text-[10px] text-neutral-400">{s.sub}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeNav === 'Missions' && (
+            <div className="animate-in fade-in duration-300">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h1 className="text-2xl font-heading font-semibold text-neutral-800 tracking-tight">Missions</h1>
+                  <p className="text-sm text-neutral-500 mt-1">Manage active and past company objectives.</p>
+                </div>
+                <button className="text-sm text-white bg-gradient-to-r from-primary-500 to-secondary-500 px-4 py-2 rounded-xl font-semibold hover:shadow-glow-primary transition-all shadow-soft-sm">
+                  New Mission +
+                </button>
+              </div>
+              <div className="bg-white rounded-2xl border border-neutral-200/50 p-6 shadow-soft-xs">
+                 <div className="space-y-6">
+                   {MISSIONS.map(m => (
+                     <div key={m.title} className="border-b border-neutral-100 last:border-0 pb-6 last:pb-0">
+                       <div className="flex justify-between items-center mb-4">
+                         <div>
+                           <span className="text-sm font-semibold text-neutral-800 block mb-0.5">{m.title}</span>
+                           <span className="text-xs text-neutral-500">Led by {m.owner}</span>
+                         </div>
+                         <StatusBadge status={m.status} />
+                       </div>
+                       <div className="flex gap-3 items-center">
+                         <div className="flex-1 h-2 bg-neutral-100 rounded-full overflow-hidden">
+                           <div
+                             className={`h-full rounded-full transition-all duration-1000 ${
+                               m.status === 'queued' ? 'bg-neutral-300' : 'bg-gradient-to-r from-primary-500 to-secondary-500'
+                             }`}
+                             style={{ width: `${m.progress}%` }}
+                           />
+                         </div>
+                         <span className="text-xs font-medium text-neutral-700 w-10 text-right">{m.progress}%</span>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeNav === 'Outputs' && (
+            <div className="animate-in fade-in duration-300">
+              <div className="mb-6">
+                <h1 className="text-2xl font-heading font-semibold text-neutral-800 tracking-tight">Recent Outputs</h1>
+                <p className="text-sm text-neutral-500 mt-1">Review work product shipped by your team.</p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {SHIPPED.map(s => (
+                  <div key={s.label} className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs hover:shadow-soft-sm transition-shadow cursor-pointer group">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-neutral-50 border border-neutral-100 flex items-center justify-center text-xl group-hover:bg-primary-50 transition-colors">{s.icon}</div>
+                      <span className="text-[10px] uppercase font-semibold tracking-wider text-neutral-400 bg-neutral-50 px-2 py-1 rounded-md border border-neutral-200/40">{s.type}</span>
+                    </div>
+                    <h3 className="text-sm font-semibold text-neutral-800 mb-1">{s.label}</h3>
+                    <p className="text-xs text-neutral-500">{s.sub}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeNav === 'Integrations' && (
+            <div className="animate-in fade-in duration-300">
+              <div className="mb-6">
+                <h1 className="text-2xl font-heading font-semibold text-neutral-800 tracking-tight">Integrations</h1>
+                <p className="text-sm text-neutral-500 mt-1">Connect your AI team to your essential tools.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { name: 'Slack', desc: 'Team communication', connected: true, color: '#E01E5A' },
+                  { name: 'Notion', desc: 'Company wiki & docs', connected: true, color: '#000000' },
+                  { name: 'Github', desc: 'Code repository', connected: true, color: '#181717' },
+                  { name: 'Figma', desc: 'Design systems', connected: false, color: '#F24E1E' },
+                  { name: 'Linear', desc: 'Issue tracking', connected: false, color: '#5E6AD2' },
+                  { name: 'Stripe', desc: 'Payments & billing', connected: true, color: '#008CDD' }
+                ].map(tool => (
+                  <div key={tool.name} className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center font-heading font-bold text-white text-lg shadow-soft-sm" style={{ backgroundColor: tool.color }}>
+                      {tool.name.charAt(0)}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-neutral-800">{tool.name}</h3>
+                      <p className="text-xs text-neutral-500">{tool.desc}</p>
+                    </div>
+                    <div>
+                      <div className={`w-10 h-5 rounded-full relative transition-colors cursor-pointer ${tool.connected ? 'bg-success-500' : 'bg-neutral-200'}`}>
+                        <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all shadow-sm ${tool.connected ? 'left-[22px]' : 'left-0.5'}`} />
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Shipped */}
-          <div className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs">
-            <div className="flex items-center gap-2 mb-4">
-              <Package className="w-4 h-4 text-success-500" />
-              <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Shipped Overnight</h3>
-            </div>
-            <div className="grid grid-cols-6 gap-3">
-              {SHIPPED.map(s => (
-                <div key={s.label} className="bg-neutral-50 rounded-xl border border-neutral-100 p-3 text-center hover:bg-white hover:shadow-soft-xs hover:border-neutral-200 transition-all cursor-default">
-                  <div className="text-xl mb-2">{s.icon}</div>
-                  <div className="text-xs font-semibold text-neutral-700 mb-0.5">{s.label}</div>
-                  <div className="text-[10px] text-neutral-400">{s.sub}</div>
+          {activeNav === 'Analytics' && (
+            <div className="animate-in fade-in duration-300">
+              <div className="mb-6">
+                <h1 className="text-2xl font-heading font-semibold text-neutral-800 tracking-tight">Team Analytics</h1>
+                <p className="text-sm text-neutral-500 mt-1">Efficiency and velocity metrics for your AI ops.</p>
+              </div>
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs">
+                  <div className="text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-2">Tasks Completed</div>
+                  <div className="text-3xl font-bold text-neutral-800">142</div>
+                  <div className="text-xs text-success-500 font-medium mt-1">↑ 12% vs last week</div>
                 </div>
-              ))}
+                <div className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs">
+                  <div className="text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-2">Avg Resolution</div>
+                  <div className="text-3xl font-bold text-neutral-800">14m</div>
+                  <div className="text-xs text-success-500 font-medium mt-1">↓ 3m vs last week</div>
+                </div>
+                <div className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs">
+                  <div className="text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-2">Agent Active Time</div>
+                  <div className="text-3xl font-bold text-neutral-800">98%</div>
+                  <div className="text-xs text-neutral-400 font-medium mt-1">Stable</div>
+                </div>
+              </div>
+              <div className="bg-white rounded-2xl border border-neutral-200/50 p-5 shadow-soft-xs h-64 flex flex-col items-center justify-center">
+                <BarChart3 className="w-12 h-12 text-neutral-200 mb-3" />
+                <p className="text-sm font-medium text-neutral-500">Detailed graphs loading...</p>
+              </div>
             </div>
-          </div>
+          )}
+
+          {activeNav === 'Settings' && (
+            <div className="animate-in fade-in duration-300">
+              <div className="mb-6">
+                <h1 className="text-2xl font-heading font-semibold text-neutral-800 tracking-tight">HQ Settings</h1>
+                <p className="text-sm text-neutral-500 mt-1">Configure your company control center.</p>
+              </div>
+              <div className="bg-white rounded-2xl border border-neutral-200/50 p-6 shadow-soft-xs max-w-2xl">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-sm font-semibold text-neutral-800 mb-2">Operating Mode</h3>
+                    <div className="flex gap-3">
+                      <button className="flex-1 px-4 py-3 rounded-xl border-2 border-primary-500 bg-primary-50 text-primary-700 text-sm font-medium transition-all">Balanced Growth</button>
+                      <button className="flex-1 px-4 py-3 rounded-xl border border-neutral-200 bg-white text-neutral-600 text-sm font-medium hover:bg-neutral-50 transition-all">Aggressive Scaling</button>
+                      <button className="flex-1 px-4 py-3 rounded-xl border border-neutral-200 bg-white text-neutral-600 text-sm font-medium hover:bg-neutral-50 transition-all">Maintenance</button>
+                    </div>
+                  </div>
+                  <hr className="border-neutral-100" />
+                  <div>
+                    <h3 className="text-sm font-semibold text-neutral-800 mb-1">Weekly Reports</h3>
+                    <p className="text-xs text-neutral-500 mb-3">Receive a comprehensive PDF breakdown every Monday morning.</p>
+                    <div className="flex items-center gap-2">
+                       <div className="w-10 h-5 rounded-full relative bg-success-500 transition-colors cursor-pointer">
+                         <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all shadow-sm left-[22px]" />
+                       </div>
+                       <span className="text-sm font-medium text-neutral-700">Enabled</span>
+                    </div>
+                  </div>
+                  <hr className="border-neutral-100" />
+                  <div>
+                    <h3 className="text-sm font-semibold text-neutral-800 mb-3">Data Retention</h3>
+                    <select className="w-full bg-neutral-50 border border-neutral-200/60 rounded-xl px-4 py-2.5 text-sm text-neutral-800 outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20">
+                      <option>Keep everything forever</option>
+                      <option>Delete logs older than 90 days</option>
+                      <option>Delete logs older than 30 days</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Chat rail */}

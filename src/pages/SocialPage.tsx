@@ -27,11 +27,21 @@ const socialAccounts: SocialAccount[] = [
   { id: 'linkedin', platform: 'LinkedIn', icon: Linkedin, username: 'Your Company', connected: false, followers: '—', engagement: '—', color: '#0A66C2', gradient: 'from-[#0A66C2] to-[#004182]', recentPosts: 0 },
 ];
 
-const initialContentPieces = [
-  { id: '1', caption: 'Introducing our journey from idea to reality. Swipe through to see how we\'re changing the game...\n\n#startup #branding #growth', platform: 'Instagram', status: 'pending' as const, createdBy: 'Canvas', scheduledFor: 'Tomorrow, 6:00 PM', mockImageBg: 'linear-gradient(135deg, #833AB4, #E4405F)' },
-  { id: '2', caption: '5 trends every founder needs to watch in 2026. Thread incoming 🧵...\n\n#startup #tech #trends', platform: 'Twitter', status: 'approved' as const, createdBy: 'Maven', scheduledFor: 'Wed, 10:00 AM', mockImageBg: 'linear-gradient(135deg, #1DA1F2, #0d8ecf)' },
-  { id: '3', caption: 'Something exciting is coming. Stay tuned for the big reveal...\n\n#innovation #product #teaser', platform: 'Instagram', status: 'draft' as const, createdBy: 'Canvas', scheduledFor: 'Fri, 7:00 PM', mockImageBg: 'linear-gradient(135deg, #a855f7, #06b6d4)' },
-  { id: '4', caption: 'We just hit 1,000 users! Thank you to our incredible community for believing in us...\n\n#milestone #growth #community', platform: 'LinkedIn', status: 'pending' as const, createdBy: 'Chief', scheduledFor: 'Thu, 9:00 AM', mockImageBg: 'linear-gradient(135deg, #0A66C2, #004182)' },
+interface ContentPiece {
+  id: string;
+  caption: string;
+  platform: string;
+  status: 'pending' | 'approved' | 'draft' | 'rejected';
+  createdBy: string;
+  scheduledFor: string;
+  mockImageBg: string;
+}
+
+const initialContentPieces: ContentPiece[] = [
+  { id: '1', caption: 'Introducing our journey from idea to reality. Swipe through to see how we\'re changing the game...\n\n#startup #branding #growth', platform: 'Instagram', status: 'pending', createdBy: 'Canvas', scheduledFor: 'Tomorrow, 6:00 PM', mockImageBg: 'linear-gradient(135deg, #833AB4, #E4405F)' },
+  { id: '2', caption: '5 trends every founder needs to watch in 2026. Thread incoming 🧵...\n\n#startup #tech #trends', platform: 'Twitter', status: 'approved', createdBy: 'Maven', scheduledFor: 'Wed, 10:00 AM', mockImageBg: 'linear-gradient(135deg, #1DA1F2, #0d8ecf)' },
+  { id: '3', caption: 'Something exciting is coming. Stay tuned for the big reveal...\n\n#innovation #product #teaser', platform: 'Instagram', status: 'draft', createdBy: 'Canvas', scheduledFor: 'Fri, 7:00 PM', mockImageBg: 'linear-gradient(135deg, #a855f7, #06b6d4)' },
+  { id: '4', caption: 'We just hit 1,000 users! Thank you to our incredible community for believing in us...\n\n#milestone #growth #community', platform: 'LinkedIn', status: 'pending', createdBy: 'Chief', scheduledFor: 'Thu, 9:00 AM', mockImageBg: 'linear-gradient(135deg, #0A66C2, #004182)' },
 ];
 
 const mockScheduledPosts = [

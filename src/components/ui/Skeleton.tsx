@@ -45,8 +45,8 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     <div
       className={`animate-pulse bg-neutral-200 dark:bg-neutral-700/80 ${currentShape} ${className}`}
       style={{
-        width: width || defaults.width || undefined,
-        height: height || defaults.height || undefined,
+        width: width || (defaults as Record<string, string>).width || undefined,
+        height: height || (defaults as Record<string, string>).height || undefined,
       }}
       aria-hidden="true"
     />
