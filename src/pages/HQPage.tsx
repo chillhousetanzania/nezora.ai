@@ -99,8 +99,8 @@ export default function HQPage() {
   const chatRef = useRef<HTMLDivElement>(null)
   const [introOpen, setIntroOpen] = useState(true)
   const [activeNav, setActiveNav] = useState('Overview')
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [chatOpen, setChatOpen] = useState(false)
+  const [mobileModal, setMobileModal] = useState<'none' | 'team' | 'chat' | 'menu'>('none')
+  const [chatTab, setChatTab] = useState('Chat')
 
   const emp = EMPLOYEES[activeAgent]
 
@@ -167,105 +167,208 @@ export default function HQPage() {
 
       {/* Top bar */}
       <div className="h-14 border-b border-neutral-200/60 flex items-center px-3 sm:px-5 gap-2 sm:gap-4 flex-shrink-0 bg-white/80 backdrop-blur-xl">
-        {/* Mobile: Sidebar toggle */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100 transition-colors flex-shrink-0"
-        >
-          <ChevronRight className={`w-4 h-4 text-neutral-500 transition-transform ${sidebarOpen ? 'rotate-180' : ''}`} />
-        </button>
         <Link to="/" className="flex items-center gap-2 no-underline">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center shadow-soft-sm flex-shrink-0">
             <Zap className="w-4 h-4 text-white" />
           </div>
-          <span className="font-heading font-semibold text-base text-neutral-800 tracking-tight hidden sm:block">Nezora</span>
+          <span className="font-heading font-semibold text-base text-neutral-800 tracking-tight">Nezora HQ</span>
         </Link>
-        <span className="text-xs text-neutral-400 font-medium hidden sm:block">/hq</span>
         <div className="ml-auto flex gap-1.5 sm:gap-3 items-center">
-          <span className="hidden sm:flex items-center gap-2 text-xs font-medium text-success-600">
+          <span className="flex items-center gap-2 text-xs font-medium text-success-600">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-success-500" />
             </span>
-            All systems on
+            <span className="hidden sm:inline">All systems on</span>
           </span>
           <Link to="/org" className="hidden sm:block text-xs text-neutral-500 no-underline px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors font-medium">
             Org Chart →
           </Link>
-          <Link to="/" className="text-xs text-neutral-500 no-underline px-2 sm:px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors font-medium">
+          <Link to="/" className="hidden sm:block text-xs text-neutral-500 no-underline px-2 sm:px-3 py-1.5 rounded-lg border border-neutral-200 hover:bg-neutral-50 transition-colors font-medium">
             ← Site
           </Link>
-          {/* Mobile: Chat toggle */}
-          <button
-            onClick={() => setChatOpen(!chatOpen)}
-            className="lg:hidden flex items-center gap-1.5 text-xs text-white bg-neutral-900 no-underline px-2.5 py-1.5 rounded-lg hover:bg-neutral-800 transition-colors font-medium"
-          >
-            <Users className="w-3.5 h-3.5" />
-            Chat
-          </button>
         </div>
       </div>
 
-      {/* Mobile Sidebar Drawer */}
+      {/* Mobile Modals (Bottom Sheets) */}
       <AnimatePresence>
-        {sidebarOpen && (
-          <motion.div
-            initial={{ x: '-100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '-100%' }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="lg:hidden fixed inset-y-0 left-0 z-[200] w-[260px] bg-white border-r border-neutral-200/60 flex flex-col shadow-soft-xl"
-          >
-            <div className="h-14 flex items-center justify-between px-4 border-b border-neutral-100 flex-shrink-0">
-              <span className="text-sm font-semibold text-neutral-700">Menu</span>
-              <button onClick={() => setSidebarOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100"><ChevronRight className="w-4 h-4 rotate-180" /></button>
-            </div>
-            <div className="p-4 border-b border-neutral-100">
-              <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest mb-1">Your Company</p>
-              <h3 className="text-base font-semibold text-neutral-800 mb-3">Founder HQ</h3>
-              <div className="flex gap-5">
-                <div><div className="text-lg font-bold text-primary-500 leading-tight">$4.3K</div><div className="text-[10px] text-neutral-400 font-medium uppercase">MRR</div></div>
-                <div><div className="text-lg font-bold text-neutral-800 leading-tight">1,847</div><div className="text-[10px] text-neutral-400 font-medium uppercase">Subs</div></div>
-                <div><div className="text-lg font-bold text-success-500 leading-tight">+8%</div><div className="text-[10px] text-neutral-400 font-medium uppercase">7d</div></div>
+        {mobileModal !== 'none' && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="lg:hidden fixed inset-0 z-[200] bg-neutral-900/40 backdrop-blur-sm"
+              onClick={() => setMobileModal('none')}
+            />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 26, stiffness: 260 }}
+              className={`lg:hidden fixed bottom-0 left-0 right-0 z-[210] bg-white rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden ${mobileModal === 'chat' ? 'h-[92dvh]' : 'max-h-[85dvh]'}`}
+            >
+              {/* Handle bar */}
+              <div className="w-full flex justify-center pt-3 pb-1 flex-shrink-0 bg-white" onClick={() => setMobileModal('none')}>
+                <div className="w-12 h-1.5 bg-neutral-200 rounded-full" />
               </div>
-            </div>
-            <div className="p-2 border-b border-neutral-100">
-              {NAV_ITEMS.map((item) => { const Icon = item.icon; return (<div key={item.label} onClick={() => { setActiveNav(item.label); setSidebarOpen(false); }} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg mb-0.5 cursor-pointer text-sm font-medium transition-colors ${activeNav === item.label ? 'bg-primary-50 text-primary-600' : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700'}`}><Icon className="w-4 h-4" />{item.label}</div>); })}
-            </div>
-            <div className="flex-1 overflow-auto p-2">
-              <p className="text-[10px] font-semibold text-neutral-400 uppercase tracking-widest mb-2 px-2">Team · 12 online</p>
-              {EMPLOYEES.map((e, i) => (<div key={e.initials} onClick={() => { setActiveAgent(i); setSidebarOpen(false); }} className={`flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer transition-all mb-0.5 ${activeAgent === i ? 'bg-neutral-100 border border-neutral-200/50' : 'border border-transparent hover:bg-neutral-50'}`}><div className={`w-8 h-8 flex-shrink-0 rounded-lg flex items-center justify-center text-xs font-bold ${activeAgent === i ? 'bg-primary-100 text-primary-600 border border-primary-200' : 'bg-neutral-100 text-neutral-500 border border-neutral-200/50'}`}>{e.initials}</div><div className="flex-1 min-w-0"><div className="text-sm font-medium text-neutral-700 truncate">{e.role}</div><div className="text-[11px] text-neutral-400 truncate">{e.name.split(' ')[0]}</div></div><div className="w-2 h-2 rounded-full bg-success-400 flex-shrink-0" /></div>))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      {sidebarOpen && <div className="lg:hidden fixed inset-0 z-[190] bg-neutral-900/20" onClick={() => setSidebarOpen(false)} />}
 
-      {/* Mobile Chat Drawer */}
-      <AnimatePresence>
-        {chatOpen && (
-          <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="lg:hidden fixed inset-y-0 right-0 z-[200] w-[300px] max-w-[85vw] bg-white border-l border-neutral-200/60 flex flex-col shadow-soft-xl"
-          >
-            <div className="h-14 flex items-center justify-between px-4 border-b border-neutral-100 flex-shrink-0">
-              <span className="text-sm font-semibold text-neutral-700">Chat with {EMPLOYEES[activeAgent].role}</span>
-              <button onClick={() => setChatOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100"><ChevronRight className="w-4 h-4" /></button>
-            </div>
-            <div ref={chatRef} className="flex-1 overflow-auto p-4 flex flex-col gap-3">
-              {messages.map((msg, i) => (<div key={i} className={`flex flex-col ${msg.from === 'user' ? 'items-end' : 'items-start'}`}><div className={`max-w-[85%] px-3.5 py-2.5 text-sm leading-relaxed ${msg.from === 'user' ? 'bg-neutral-900 text-white rounded-2xl rounded-br-sm' : 'bg-neutral-100 text-neutral-700 rounded-2xl rounded-bl-sm border border-neutral-200/50'}`}>{msg.text}</div><span className="text-[10px] text-neutral-400 mt-1 px-1">{msg.time}</span></div>))}
-              {typing && (<div className="flex items-center gap-1.5"><div className="px-3.5 py-3 bg-neutral-100 rounded-2xl rounded-bl-sm border border-neutral-200/50 flex gap-1 items-center">{[0,1,2].map(d => (<motion.div key={d} animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: d * 0.2 }} className="w-1.5 h-1.5 rounded-full bg-neutral-400" />))}</div></div>)}
-            </div>
-            <div className="p-3 border-t border-neutral-100 flex-shrink-0">
-              <div className="flex gap-2"><input className="flex-1 bg-neutral-50 border border-neutral-200/50 rounded-xl px-3.5 py-2.5 text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all" placeholder={`Message ${EMPLOYEES[activeAgent].role}...`} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') send() }} /><button onClick={send} className="w-10 h-10 flex items-center justify-center rounded-xl bg-neutral-900 text-white hover:bg-neutral-800 transition-colors shadow-soft-sm active:scale-95"><Send className="w-4 h-4" /></button></div>
-            </div>
-          </motion.div>
+              {/* TEAM MODAL */}
+              {mobileModal === 'team' && (
+                <div className="flex-1 overflow-auto p-4 pt-0">
+                  <div className="mb-4 pt-2">
+                    <h2 className="text-xl font-heading font-semibold text-neutral-900">Your Team</h2>
+                    <p className="text-sm text-neutral-500">Select an agent to chat with.</p>
+                  </div>
+                  <div className="bg-neutral-50 rounded-2xl border border-neutral-100 p-2 space-y-1">
+                    {EMPLOYEES.map((e, i) => (
+                      <div
+                        key={e.initials}
+                        onClick={() => { setActiveAgent(i); setMobileModal('chat'); }}
+                        className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${
+                          activeAgent === i ? 'bg-white shadow-soft-sm border border-neutral-200/60' : 'hover:bg-neutral-100 border border-transparent'
+                        }`}
+                      >
+                        <div className={`w-10 h-10 flex-shrink-0 rounded-xl flex items-center justify-center text-sm font-bold ${
+                          activeAgent === i ? 'bg-gradient-to-br from-primary-500 to-secondary-500 text-white' : 'bg-neutral-200 text-neutral-600'
+                        }`}>
+                          {e.initials}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-semibold text-neutral-800">{e.role}</div>
+                          <div className="text-xs text-neutral-500">{e.title}</div>
+                        </div>
+                        <span className="flex items-center gap-1.5 text-[10px] font-semibold text-success-600 bg-success-50 px-2 py-1 rounded-md uppercase tracking-wider">
+                          <span className="w-1.5 h-1.5 rounded-full bg-success-500" />
+                          Online
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* MENU MODAL */}
+              {mobileModal === 'menu' && (
+                <div className="flex-1 overflow-auto p-4 pt-0">
+                  <div className="mb-4 pt-2">
+                    <h2 className="text-xl font-heading font-semibold text-neutral-900">Menu</h2>
+                    <p className="text-sm text-neutral-500">Navigate your company HQ.</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {NAV_ITEMS.map((item) => {
+                      const Icon = item.icon
+                      return (
+                        <div
+                          key={item.label}
+                          onClick={() => { setActiveNav(item.label); setMobileModal('none'); }}
+                          className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl border transition-all ${
+                            activeNav === item.label
+                              ? 'bg-primary-50 border-primary-200 text-primary-600'
+                              : 'bg-white border-neutral-200/60 text-neutral-600 hover:bg-neutral-50'
+                          }`}
+                        >
+                          <Icon className={`w-6 h-6 ${activeNav === item.label ? 'text-primary-500' : 'text-neutral-400'}`} />
+                          <span className="text-sm font-medium">{item.label}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* CHAT MODAL */}
+              {mobileModal === 'chat' && (
+                <div className="flex-1 flex flex-col overflow-hidden bg-neutral-50">
+                  {/* Rich Agent Header */}
+                  <div className="px-4 pb-3 pt-1 border-b border-neutral-200/60 flex items-center justify-between bg-white flex-shrink-0">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-primary-50 border border-primary-200 flex items-center justify-center text-sm font-bold text-primary-600">
+                        {emp.initials}
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-sm font-semibold text-neutral-800">{emp.role}</div>
+                        <div className="text-xs text-neutral-400">{emp.title}</div>
+                      </div>
+                    </div>
+                    <span className="flex items-center gap-1.5 text-[10px] font-semibold text-success-600 bg-success-50 border border-success-500/20 px-2 py-1 rounded-md uppercase tracking-wider">
+                      <span className="w-1.5 h-1.5 rounded-full bg-success-500" />
+                      Online
+                    </span>
+                  </div>
+                  
+                  {/* Chat Tabs */}
+                  <div className="flex border-b border-neutral-200/60 bg-white flex-shrink-0">
+                    {['Chat', 'Brief', 'Logs'].map((tab) => (
+                      <div
+                        key={tab}
+                        onClick={() => setChatTab(tab)}
+                        className={`flex-1 py-3 text-center text-xs font-semibold uppercase tracking-wider cursor-pointer transition-colors ${
+                          chatTab === tab
+                            ? 'text-primary-500 border-b-2 border-primary-500 bg-primary-50/30'
+                            : 'text-neutral-400 border-b-2 border-transparent hover:text-neutral-600 hover:bg-neutral-50'
+                        }`}
+                      >
+                        {tab}
+                      </div>
+                    ))}
+                  </div>
+
+                  {chatTab === 'Chat' ? (
+                    <>
+                      <div ref={chatRef} className="flex-1 overflow-auto p-4 flex flex-col gap-3">
+                        {messages.map((msg, i) => (
+                          <div key={i} className={`flex flex-col ${msg.from === 'user' ? 'items-end' : 'items-start'}`}>
+                            <div className={`max-w-[85%] px-4 py-3 text-sm leading-relaxed shadow-soft-sm ${
+                              msg.from === 'user'
+                                ? 'bg-gradient-to-br from-neutral-800 to-neutral-900 text-white rounded-2xl rounded-br-sm'
+                                : 'bg-white text-neutral-800 rounded-2xl rounded-bl-sm border border-neutral-200/60'
+                            }`}>
+                              {msg.text}
+                            </div>
+                            <span className="text-[10px] text-neutral-400 mt-1 px-1 font-medium">{msg.time}</span>
+                          </div>
+                        ))}
+                        {typing && (
+                          <div className="flex items-center gap-1.5">
+                            <div className="px-4 py-3.5 bg-white rounded-2xl rounded-bl-sm border border-neutral-200/60 shadow-soft-sm flex gap-1 items-center">
+                              {[0, 1, 2].map(d => (
+                                <motion.div key={d} animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: d * 0.2 }} className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3 bg-white border-t border-neutral-200/60 flex-shrink-0 pb-safe">
+                        <div className="flex gap-2">
+                          <input
+                            className="flex-1 bg-neutral-50 border border-neutral-200/60 rounded-xl px-4 py-3 text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all shadow-inner-xs"
+                            placeholder={`Message ${emp.role}...`}
+                            value={input}
+                            onChange={e => setInput(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Enter') send() }}
+                          />
+                          <button
+                            onClick={send}
+                            className="w-[46px] h-[46px] flex-shrink-0 flex items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-secondary-500 text-white hover:shadow-glow-primary transition-all shadow-soft-sm active:scale-95"
+                          >
+                            <Send className="w-4 h-4 ml-0.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex-1 flex items-center justify-center p-6 text-center">
+                      <p className="text-sm text-neutral-400">Content for {chatTab} is not available in the current prototype.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
-      {chatOpen && <div className="lg:hidden fixed inset-0 z-[190] bg-neutral-900/20" onClick={() => setChatOpen(false)} />}
 
       {/* 3-column body */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-[240px_1fr_320px] overflow-hidden">
@@ -698,6 +801,50 @@ export default function HQPage() {
           </div>
         </div>
       </div>
+
+      {/* Apple-Inspired Bottom Tab Bar (Mobile Only) */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 h-[84px] bg-white/80 backdrop-blur-xl border-t border-neutral-200/60 flex items-center justify-around px-2 pb-6 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] z-[150]">
+        <button
+          onClick={() => { setMobileModal('none'); setActiveNav('Overview'); }}
+          className={`flex flex-col items-center justify-center w-16 h-full gap-1 transition-colors ${mobileModal === 'none' && activeNav === 'Overview' ? 'text-primary-500' : 'text-neutral-400 hover:text-neutral-600'}`}
+        >
+          <LayoutGrid className="w-5 h-5" />
+          <span className="text-[10px] font-semibold">HQ</span>
+        </button>
+        <button
+          onClick={() => setMobileModal('team')}
+          className={`flex flex-col items-center justify-center w-16 h-full gap-1 transition-colors ${mobileModal === 'team' ? 'text-primary-500' : 'text-neutral-400 hover:text-neutral-600'}`}
+        >
+          <Users className="w-5 h-5" />
+          <span className="text-[10px] font-semibold">Team</span>
+        </button>
+        <button
+          onClick={() => setMobileModal('chat')}
+          className={`flex flex-col items-center justify-center w-16 h-full gap-1 transition-colors ${mobileModal === 'chat' ? 'text-primary-500' : 'text-neutral-400 hover:text-neutral-600'}`}
+        >
+          <div className="relative">
+            <Send className="w-5 h-5" />
+            <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-error-500 border-2 border-white rounded-full" />
+          </div>
+          <span className="text-[10px] font-semibold">Chat</span>
+        </button>
+        <button
+          onClick={() => setMobileModal('menu')}
+          className={`flex flex-col items-center justify-center w-16 h-full gap-1 transition-colors ${mobileModal === 'menu' ? 'text-primary-500' : 'text-neutral-400 hover:text-neutral-600'}`}
+        >
+          <Briefcase className="w-5 h-5" />
+          <span className="text-[10px] font-semibold">Menu</span>
+        </button>
+      </div>
+
+      {/* Add padding to body to prevent bottom bar overlap */}
+      <style>{`
+        @media (max-width: 1024px) {
+          .flex-1.grid {
+            padding-bottom: 84px;
+          }
+        }
+      `}</style>
     </div>
   )
 }
