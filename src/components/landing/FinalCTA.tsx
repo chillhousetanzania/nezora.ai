@@ -5,7 +5,7 @@ export default function FinalCTA() {
   const { openOnboarding } = useLanding()
 
   return (
-    <section className="py-32 px-6 lg:px-12 mt-12 bg-neutral-900 relative overflow-hidden">
+    <section className="py-20 sm:py-32 px-4 sm:px-6 lg:px-12 mt-12 bg-neutral-900 relative overflow-hidden">
       {/* Background radial gradients */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary-500/20 rounded-full blur-[100px]" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-secondary-500/20 rounded-full blur-[80px]" />
@@ -15,7 +15,7 @@ export default function FinalCTA() {
           <span className="text-xs font-semibold uppercase tracking-wider text-white">Launch</span>
         </div>
         
-        <h2 className="text-4xl md:text-6xl font-heading font-semibold text-white mb-8 tracking-tight leading-[1.1]">
+        <h2 className="text-3xl sm:text-4xl md:text-6xl font-heading font-semibold text-white mb-8 tracking-tight leading-[1.1]">
           Your company is waiting.<br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400">Launch it today.</span>
         </h2>

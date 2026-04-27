@@ -56,7 +56,7 @@ export default function Pricing() {
   const { openOnboarding } = useLanding()
 
   return (
-    <section className="py-24 px-6 lg:px-12 bg-neutral-50" id="plans">
+    <section className="py-14 sm:py-24 px-4 sm:px-6 lg:px-12 bg-neutral-50" id="plans">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-50 border border-primary-100 mb-4">
@@ -70,7 +70,7 @@ export default function Pricing() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {TIERS.map(tier => (
             <Card 
               key={tier.tier} 

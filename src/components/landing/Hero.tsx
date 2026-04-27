@@ -81,12 +81,12 @@ export default function Hero() {
           </div>
         </motion.div>
 
-        {/* Right Graphic: Abstract representation of the App Dashboard instead of the Tower */}
+        {/* Right Graphic: hidden on mobile, shown on lg+ */}
         <motion.div 
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-          className="relative lg:h-[600px] w-full"
+          className="relative lg:h-[600px] w-full hidden lg:block"
         >
           {/* Main Dashboard Panel */}
           <div className="absolute inset-0 bg-white/60 backdrop-blur-3xl rounded-3xl border border-white/80 shadow-soft-xl shadow-neutral-200/50 p-6 flex flex-col transform rotate-2 hover:rotate-0 transition-transform duration-700 origin-bottom-right">

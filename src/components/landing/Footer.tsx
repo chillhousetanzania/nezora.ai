@@ -32,10 +32,10 @@ const COLS = [
 
 export default function Footer() {
   return (
-    <footer className="bg-neutral-900 border-t border-neutral-800 pt-20 pb-10 px-6 lg:px-12">
+    <footer className="bg-neutral-900 border-t border-neutral-800 pt-14 sm:pt-20 pb-10 px-4 sm:px-6 lg:px-12">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-12 md:gap-8 mb-16">
-          <div className="col-span-2 md:pr-12">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 mb-16">
+          <div className="col-span-2 sm:col-span-3 md:col-span-2 md:pr-12">
             <a href="/" className="flex items-center gap-2.5 outline-none group mb-6">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-secondary-500 shadow-soft-sm flex items-center justify-center transition-transform group-hover:scale-105">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white">

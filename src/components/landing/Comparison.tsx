@@ -21,7 +21,7 @@ const AFTER = [
 
 export default function Comparison() {
   return (
-    <section className="py-24 px-6 lg:px-12 max-w-7xl mx-auto">
+    <section className="py-14 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-7xl mx-auto">
       <div className="text-center mb-16">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary-50 border border-secondary-100 mb-4">
           <span className="text-xs font-semibold uppercase tracking-wider text-secondary-600">The Difference</span>

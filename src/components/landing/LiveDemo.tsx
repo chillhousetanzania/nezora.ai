@@ -38,7 +38,7 @@ export default function LiveDemo() {
   useEffect(() => () => { if (intervalRef.current) clearInterval(intervalRef.current) }, [])
 
   return (
-    <section className="py-24 px-6 lg:px-12 max-w-5xl mx-auto" id="live">
+    <section className="py-14 sm:py-24 px-4 sm:px-6 lg:px-12 max-w-5xl mx-auto" id="live">
       <div className="text-center mb-16">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-success-50 border border-success-100 mb-4">
           <span className="flex h-2 w-2 relative">
@@ -71,7 +71,7 @@ export default function LiveDemo() {
         </div>
 
         {/* Chat area */}
-        <div className="h-[400px] overflow-y-auto mb-4 pr-2 flex flex-col gap-6" ref={logRef}>
+        <div className="h-[280px] sm:h-[400px] overflow-y-auto mb-4 pr-2 flex flex-col gap-6" ref={logRef}>
           {lines.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center opacity-50">
               <div className="w-16 h-16 rounded-2xl bg-neutral-100 flex items-center justify-center mb-4">
